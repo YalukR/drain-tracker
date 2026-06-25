@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">Drenajes</string>
-    <string name="title_activity_main">Drenajes</string>
-    <string name="package_name">com.drenajes.app</string>
-    <string name="custom_url_scheme">com.drenajes.app</string>
-</resources>
