@@ -14,14 +14,29 @@ interface DayTotal {
   selector: 'app-stats',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './stats.page.html' 
+  templateUrl: './stats.page.html'
 })
 export class StatsPage implements OnInit {
   private storage = inject(StorageService);
   logs = signal<CleaningLog[]>([]);
 
-  ngOnInit(): void { this.logs.set(this.storage.getLogs()); }
+  ngOnInit(): void {
+    this.logs.set(this.storage.getLogs());
+    this.settings = this.storage.getSettings();
+  }
 
+  settings: ReturnType<StorageService['getSettings']> = {};
+
+  // ── Día de recuperación ───────────────────────────────────────────────
+  recoveryDay = computed(() => {
+    if (!this.settings.surgeryDate) return null;
+    const surgery = new Date(this.settings.surgeryDate + 'T12:00:00');
+    const today = new Date();
+    const diff = Math.floor((today.getTime() - surgery.getTime()) / (1000 * 60 * 60 * 24));
+    return diff >= 0 ? diff + 1 : null; // día 1 = día de la cirugía
+  });
+
+  // ── Resumen global ────────────────────────────────────────────────────
   totalLogs = computed(() => this.logs().length);
 
   totalMl = computed(() =>
@@ -32,7 +47,7 @@ export class StatsPage implements OnInit {
     this.totalLogs() === 0 ? 0 : Math.round(this.totalMl() / this.totalLogs())
   );
 
-  // Totales por día (últimos 14 días con datos)
+  // ── Totales por día (últimos 14 días con datos) ───────────────────────
   dailyTotals = computed((): DayTotal[] => {
     const map = new Map<string, DayTotal>();
     this.logs().forEach(l => {
@@ -59,7 +74,37 @@ export class StatsPage implements OnInit {
     return Math.max(Math.round((total / this.maxDay()) * 100), total > 0 ? 4 : 0);
   }
 
-  // IDs únicos de drenajes en los logs
+  // Puntos SVG para la línea de tendencia (viewBox 0 0 300 80)
+  trendPolyline = computed(() => {
+    const days = this.dailyTotals();
+    if (days.length < 2) return '';
+    const max = this.maxDay();
+    const w = 300;
+    const h = 80;
+    const pad = 10;
+    return days.map((d, i) => {
+      const x = pad + (i / (days.length - 1)) * (w - pad * 2);
+      const y = h - pad - ((d.total / max) * (h - pad * 2));
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+  });
+
+  trendPoints = computed(() => {
+    const days = this.dailyTotals();
+    if (days.length < 2) return [];
+    const max = this.maxDay();
+    const w = 300;
+    const h = 80;
+    const pad = 10;
+    return days.map((d, i) => ({
+      x: pad + (i / (days.length - 1)) * (w - pad * 2),
+      y: h - pad - ((d.total / max) * (h - pad * 2)),
+      total: d.total,
+      label: d.label,
+    }));
+  });
+
+  // ── Por drenaje ───────────────────────────────────────────────────────
   drainIds = computed(() => {
     const ids = new Map<string, string>();
     this.logs().forEach(l => l.entries.forEach(e => ids.set(e.drainId, e.drainLabel)));
@@ -80,7 +125,7 @@ export class StatsPage implements OnInit {
     return avgs.map(a => ({ ...a, pct: Math.round((a.avg / max) * 100) }));
   });
 
-  // Últimas 5 limpiezas con diferencia vs anterior
+  // ── Comparación últimas 5 limpiezas ──────────────────────────────────
   comparisons = computed(() => {
     const last5 = [...this.logs()].slice(0, 5).reverse();
     return last5.map((l, i) => {
@@ -89,12 +134,12 @@ export class StatsPage implements OnInit {
       return {
         label: this.shortDateFull(l.timestamp),
         value: val,
-        diff: prev !== null ? val - prev : null
+        diff: prev !== null ? val - prev : null,
       };
     }).reverse();
   });
 
-  // Tendencia: compara primera mitad vs segunda mitad de logs
+  // ── Tendencia general ─────────────────────────────────────────────────
   trend = computed(() => {
     const ls = [...this.logs()].reverse();
     if (ls.length < 2) return 0;
@@ -104,27 +149,11 @@ export class StatsPage implements OnInit {
     return first - second; // positivo = bajando (bueno)
   });
 
-  trendIcon = computed(() => {
-    const t = this.trend();
-    if (t > 10) return 'pi-arrow-down';
-    if (t < -10) return 'pi-arrow-up';
-    return 'pi-minus';
-  });
+  trendIcon = computed(() => { const t = this.trend(); return t > 10 ? 'pi-arrow-down' : t < -10 ? 'pi-arrow-up' : 'pi-minus'; });
+  trendColor = computed(() => { const t = this.trend(); return t > 10 ? 'var(--color-success)' : t < -10 ? 'var(--color-danger)' : 'var(--color-text-muted)'; });
+  trendLabel = computed(() => { const t = this.trend(); return t > 10 ? 'Bajando' : t < -10 ? 'Subiendo' : 'Estable'; });
 
-  trendColor = computed(() => {
-    const t = this.trend();
-    if (t > 10) return 'var(--color-success)';
-    if (t < -10) return 'var(--color-danger)';
-    return 'var(--color-text-muted)';
-  });
-
-  trendLabel = computed(() => {
-    const t = this.trend();
-    if (t > 10) return 'Bajando';
-    if (t < -10) return 'Subiendo';
-    return 'Estable';
-  });
-
+  // ── Helpers ───────────────────────────────────────────────────────────
   shortDate(d: string): string {
     return new Date(d + 'T12:00:00').toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit' });
   }

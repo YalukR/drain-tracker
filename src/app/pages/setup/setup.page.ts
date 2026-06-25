@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { Drain, AppSettings } from '../../models';
 
 @Component({
@@ -14,6 +15,7 @@ import { Drain, AppSettings } from '../../models';
 export class SetupPage implements OnInit {
   router = inject(Router);
   private storage = inject(StorageService);
+  private notifications = inject(NotificationService);
 
   drains = signal<Drain[]>([]);
   newLabel = '';
@@ -77,6 +79,7 @@ export class SetupPage implements OnInit {
     };
     this.storage.saveSettings(clean);
     this.settingsSaved.set(true);
+    this.notifications.schedule();
     setTimeout(() => this.settingsSaved.set(false), 2500);
   }
 
