@@ -1,9 +1,13 @@
 import { Injectable } from '@angular/core';
-import { AppState, Drain, CleaningLog } from '../models';
+import { AppState, AppSettings, Drain, CleaningLog } from '../models';
 
 const KEY = 'dt_state_v1';
 
-const DEFAULT: AppState = { drains: [], logs: [] };
+const DEFAULT: AppState = {
+  drains: [],
+  logs: [],
+  settings: {},
+};
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
@@ -11,7 +15,10 @@ export class StorageService {
   private load(): AppState {
     try {
       const raw = localStorage.getItem(KEY);
-      return raw ? { ...DEFAULT, ...JSON.parse(raw) } : DEFAULT;
+      if (!raw) return DEFAULT;
+      const parsed = JSON.parse(raw);
+      // Garantizar que settings existe aunque el estado sea de una versión anterior
+      return { ...DEFAULT, ...parsed, settings: { ...DEFAULT.settings, ...parsed.settings } };
     } catch {
       return DEFAULT;
     }
@@ -23,15 +30,14 @@ export class StorageService {
 
   getState(): AppState { return this.load(); }
 
-  // Drains
+  // ── Drains ────────────────────────────────────────────────────────────────
   getDrains(): Drain[] { return this.load().drains; }
 
   saveDrains(drains: Drain[]): void {
-    const state = this.load();
-    this.save({ ...state, drains });
+    this.save({ ...this.load(), drains });
   }
 
-  // Logs
+  // ── Logs ──────────────────────────────────────────────────────────────────
   getLogs(): CleaningLog[] {
     return this.load().logs.sort(
       (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -48,5 +54,18 @@ export class StorageService {
     this.save({ ...state, logs: state.logs.filter(l => l.id !== id) });
   }
 
+  // ── Settings ──────────────────────────────────────────────────────────────
+  getSettings(): AppSettings { return this.load().settings; }
+
+  saveSettings(settings: AppSettings): void {
+    this.save({ ...this.load(), settings });
+  }
+
+  patchSettings(patch: Partial<AppSettings>): void {
+    const current = this.load().settings;
+    this.save({ ...this.load(), settings: { ...current, ...patch } });
+  }
+
+  // ── Utils ─────────────────────────────────────────────────────────────────
   clear(): void { localStorage.removeItem(KEY); }
-}
+}2

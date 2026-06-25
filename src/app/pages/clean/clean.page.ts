@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
 import { CleaningLog, DrainEntry, Symptoms, LIQUID_COLORS, LiquidColor, PainLevel, BruiseColor } from '../../models';
+import { NotificationService } from 'src/app/services/notification.service';
 
 const DEFAULT_SYMPTOMS = (): Symptoms => ({
   redness: false,
@@ -27,6 +28,7 @@ const DEFAULT_SYMPTOMS = (): Symptoms => ({
 export class CleanPage implements OnInit {
   router = inject(Router);
   private storage = inject(StorageService);
+  private notifications = inject(NotificationService);
 
   drains = signal(this.storage.getDrains());
   amounts = signal<Record<string, number>>({});
@@ -39,7 +41,10 @@ export class CleanPage implements OnInit {
   saved = signal(false);
 
   useCustomDate = false;
-  customDate = '';
+  customDatePart = '';
+  customTimePart = '';
+  today = new Date().toISOString().split('T')[0];
+  alertThresholdMl = signal<number | undefined>(undefined);
 
   liquidColors = LIQUID_COLORS;
   painOptions: { v: PainLevel; l: string }[] = [
@@ -61,6 +66,15 @@ export class CleanPage implements OnInit {
       + ' — ' + now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
   });
 
+  totalMl = computed(() =>
+    this.drains().reduce((sum, d) => sum + this.getAmount(d.id), 0)
+  );
+
+  thresholdExceeded = computed(() => {
+    const threshold = this.alertThresholdMl();
+    return threshold !== undefined && this.totalMl() > threshold;
+  });
+
   ngOnInit(): void {
     const init: Record<string, number> = {};
     const entryInit: Record<string, Partial<DrainEntry>> = {};
@@ -70,6 +84,7 @@ export class CleanPage implements OnInit {
     });
     this.amounts.set(init);
     this.entries.set(entryInit);
+    this.alertThresholdMl.set(this.storage.getSettings().alertThresholdMl);
   }
 
   getAmount(id: string): number { return this.amounts()[id] ?? 0; }
@@ -87,12 +102,14 @@ export class CleanPage implements OnInit {
   setColor(id: string, color: LiquidColor): void { this.setEntryField(id, 'liquidColor', color); }
 
   get resolvedTimestamp(): string {
-    if (this.useCustomDate && this.customDate) {
-      return new Date(this.customDate).toISOString();
+    if (this.useCustomDate && this.customDatePart) {
+      const time = this.customTimePart || '12:00:00';
+      const [year, month, day] = this.customDatePart.split('-').map(Number);
+      const [hour, minute, second] = time.split(':').map(Number);
+      return new Date(year, month - 1, day, hour, minute, second ?? 0).toISOString();
     }
     return new Date().toISOString();
   }
-
   save(): void {
     this.saving.set(true);
     const entries: DrainEntry[] = this.drains().map(d => ({
@@ -118,7 +135,10 @@ export class CleanPage implements OnInit {
 
     this.storage.addLog(log);
 
-    setTimeout(() => {
+
+    setTimeout(async () => {
+
+      await this.notifications.reschedule();
       this.saving.set(false);
       this.saved.set(true);
       const reset: Record<string, number> = {};
@@ -133,8 +153,8 @@ export class CleanPage implements OnInit {
       this.bathed = false;
       this.bandageChanged = false;
       this.notes = '';
-      this.useCustomDate = false;
-      this.customDate = '';
+      this.customDatePart = '';
+      this.customTimePart = '';
       setTimeout(() => this.saved.set(false), 3000);
     }, 400);
   }
