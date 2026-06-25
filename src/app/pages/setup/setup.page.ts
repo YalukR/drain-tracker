@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
-import { Drain } from '../../models';
+import { Drain, AppSettings } from '../../models';
 
 @Component({
   selector: 'app-setup',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './setup.page.html' 
+  templateUrl: './setup.page.html'
 })
 export class SetupPage implements OnInit {
   router = inject(Router);
@@ -21,11 +21,23 @@ export class SetupPage implements OnInit {
   today = new Date().toISOString().split('T')[0];
   deleteTarget = signal<Drain | null>(null);
 
-  ngOnInit(): void { this.drains.set(this.storage.getDrains()); }
+  // Settings
+  settings: AppSettings = {};
+  settingsSaved = signal(false);
 
+  ngOnInit(): void {
+    this.drains.set(this.storage.getDrains());
+    this.settings = { ...this.storage.getSettings() };
+  }
+
+  // ── Drains ──────────────────────────────────────────────────────────────
   add(): void {
     if (!this.newLabel.trim() || !this.newDate) return;
-    const drain: Drain = { id: crypto.randomUUID(), label: this.newLabel.trim(), startDate: this.newDate };
+    const drain: Drain = {
+      id: crypto.randomUUID(),
+      label: this.newLabel.trim(),
+      startDate: this.newDate,
+    };
     const updated = [...this.drains(), drain];
     this.drains.set(updated);
     this.storage.saveDrains(updated);
@@ -49,5 +61,27 @@ export class SetupPage implements OnInit {
     return new Date(d + 'T12:00:00').toLocaleDateString('es-MX', {
       day: '2-digit', month: 'long', year: 'numeric'
     });
+  }
+
+  // ── Settings ────────────────────────────────────────────────────────────
+  saveSettings(): void {
+    // Limpiar valores vacíos para no guardar basura
+    const clean: AppSettings = {
+      surgeryDate: this.settings.surgeryDate || undefined,
+      alertThresholdMl: this.settings.alertThresholdMl
+        ? Number(this.settings.alertThresholdMl)
+        : undefined,
+      reminderIntervalHours: this.settings.reminderIntervalHours
+        ? Number(this.settings.reminderIntervalHours)
+        : undefined,
+    };
+    this.storage.saveSettings(clean);
+    this.settingsSaved.set(true);
+    setTimeout(() => this.settingsSaved.set(false), 2500);
+  }
+
+  clearSurgeryDate(): void {
+    this.settings.surgeryDate = undefined;
+    this.saveSettings();
   }
 }

@@ -7,17 +7,17 @@ export interface Drain {
 export type LiquidColor = 'rojo_oscuro' | 'rojo_claro' | 'rosado' | 'amarillo_claro' | 'amarillo' | 'claro';
 
 export const LIQUID_COLORS: { value: LiquidColor; label: string; hex: string }[] = [
-  { value: 'rojo_oscuro',    label: 'Rojo oscuro',       hex: '#7f1d1d' },
-  { value: 'rojo_claro',     label: 'Rojo claro',        hex: '#ef4444' },
-  { value: 'rosado',         label: 'Rosado',            hex: '#f472b6' },
-  { value: 'amarillo_claro', label: 'Amarillo claro',    hex: '#fde68a' },
-  { value: 'amarillo',       label: 'Amarillo',          hex: '#f59e0b' },
+  { value: 'rojo_oscuro',    label: 'Rojo oscuro',          hex: '#7f1d1d' },
+  { value: 'rojo_claro',     label: 'Rojo claro',           hex: '#ef4444' },
+  { value: 'rosado',         label: 'Rosado',               hex: '#f472b6' },
+  { value: 'amarillo_claro', label: 'Amarillo claro',       hex: '#fde68a' },
+  { value: 'amarillo',       label: 'Amarillo',             hex: '#f59e0b' },
   { value: 'claro',          label: 'Claro / transparente', hex: '#e0f2fe' },
 ];
 
-export type ClotSize = 'pequeno' | 'grande';
-export type ClotStatus = 'drenoSolo' | 'atascado';
-export type PainLevel = 'ninguno' | 'suave' | 'moderado' | 'intenso';
+export type ClotSize    = 'pequeno' | 'grande';
+export type ClotStatus  = 'drenoSolo' | 'atascado';
+export type PainLevel   = 'ninguno' | 'suave' | 'moderado' | 'intenso';
 export type BruiseColor = 'rojo' | 'morado' | 'verde' | 'amarillo';
 
 export interface DrainEntry {
@@ -28,20 +28,20 @@ export interface DrainEntry {
   hasClot: boolean;
   clotSize?: ClotSize;
   clotStatus?: ClotStatus;
-  leakingOutside: boolean;   // drenaje por el agujero de la piel
+  leakingOutside: boolean;
 }
 
 export interface Symptoms {
-  redness: boolean;           // enrojecimiento en la herida
-  numbness: boolean;          // adormecimiento
-  suctionSensation: boolean;  // sensación de vacío/succión
+  redness: boolean;
+  numbness: boolean;
+  suctionSensation: boolean;
   painLevel: PainLevel;
-  tingling: boolean;          // pinchazos
-  itching: boolean;           // comezón
-  skinColorChange: boolean;   // cambios en coloración de piel
+  tingling: boolean;
+  itching: boolean;
+  skinColorChange: boolean;
   bruiseColor?: BruiseColor;
   fever: boolean;
-  feverTemp?: number;         // temperatura si hay fiebre
+  feverTemp?: number;
 }
 
 export interface CleaningLog {
@@ -54,7 +54,14 @@ export interface CleaningLog {
   notes?: string;
 }
 
+export interface AppSettings {
+  surgeryDate?: string;        // YYYY-MM-DD — para calcular día de recuperación
+  alertThresholdMl?: number;   // ml por limpieza que disparan aviso al médico
+  reminderIntervalHours?: number; // cada cuántas horas recordar limpiar
+}
+
 export interface AppState {
   drains: Drain[];
   logs: CleaningLog[];
+  settings: AppSettings;
 }
