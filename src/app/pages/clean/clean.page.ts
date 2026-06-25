@@ -38,6 +38,9 @@ export class CleanPage implements OnInit {
   saving = signal(false);
   saved = signal(false);
 
+  useCustomDate = false;
+  customDate = '';
+
   liquidColors = LIQUID_COLORS;
   painOptions: { v: PainLevel; l: string }[] = [
     { v: 'ninguno', l: 'Ninguno' },
@@ -83,6 +86,13 @@ export class CleanPage implements OnInit {
   getColor(id: string): LiquidColor | undefined { return this.getEntry(id).liquidColor; }
   setColor(id: string, color: LiquidColor): void { this.setEntryField(id, 'liquidColor', color); }
 
+  get resolvedTimestamp(): string {
+    if (this.useCustomDate && this.customDate) {
+      return new Date(this.customDate).toISOString();
+    }
+    return new Date().toISOString();
+  }
+
   save(): void {
     this.saving.set(true);
     const entries: DrainEntry[] = this.drains().map(d => ({
@@ -98,7 +108,7 @@ export class CleanPage implements OnInit {
 
     const log: CleaningLog = {
       id: crypto.randomUUID(),
-      timestamp: new Date().toISOString(),
+      timestamp: this.resolvedTimestamp,
       entries,
       bathed: this.bathed,
       bandageChanged: this.bandageChanged,
@@ -123,6 +133,8 @@ export class CleanPage implements OnInit {
       this.bathed = false;
       this.bandageChanged = false;
       this.notes = '';
+      this.useCustomDate = false;
+      this.customDate = '';
       setTimeout(() => this.saved.set(false), 3000);
     }, 400);
   }
