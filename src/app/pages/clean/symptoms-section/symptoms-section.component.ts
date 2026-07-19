@@ -1,7 +1,7 @@
 import { Component, input, model } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Symptoms, PainLevel, BruiseColor } from 'src/app/core/models';
-import { PillSelectComponent, PillOption } from 'src/app/shared/pill-select/pill-select.component';
+import { PillSelectComponent, PillOption } from 'src/app/pages/clean/pill-select/pill-select.component';
 
 @Component({
   selector: 'app-symptoms-section',

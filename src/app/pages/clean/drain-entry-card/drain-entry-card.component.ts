@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DrainEntry, LiquidColor, LiquidColorOption } from 'src/app/core/models';
-import { PillSelectComponent, PillOption } from 'src/app/shared/pill-select/pill-select.component';
+import { PillSelectComponent, PillOption } from 'src/app/pages/clean/pill-select/pill-select.component';
 
 type ClotSize = NonNullable<DrainEntry['clotSize']>;
 type ClotStatus = NonNullable<DrainEntry['clotStatus']>;

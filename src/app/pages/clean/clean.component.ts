@@ -10,7 +10,7 @@ import { DrainEntryCardComponent } from './drain-entry-card/drain-entry-card.com
 import { SymptomsSectionComponent } from './symptoms-section/symptoms-section.component';
 import { CustomDateSectionComponent } from './custom-date-section/custom-date-section.component';
 import { VolumeAlertComponent } from './volume-alert/volume-alert.component';
-import { PillOption } from 'src/app/shared/pill-select/pill-select.component';
+import { PillOption } from 'src/app/pages/clean/pill-select/pill-select.component';
 
 const DEFAULT_SYMPTOMS = (): Symptoms => ({
   redness: false,

@@ -1,8 +1,12 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { StorageService } from '../../core/services/storage.service';
 import { CleaningLog } from '../../core/models';
-import { ChartsComponent, ChartPoint } from '../../shared/charts/charts.component';
+import { ChartPoint } from '../../shared/charts/charts.component';
 import { EmptyComponent } from 'src/app/shared/empty/empty.component';
+import { SummaryStatsComponent } from './summary-stats/summary-stats.component';
+import { TrendChartCardComponent } from './trend-chart-card/trend-chart-card.component';
+import { DrainAveragesComponent } from './drain-averages/drain-averages.component';
+import { CleaningComparisonComponent } from './cleaning-comparison/cleaning-comparison.component';
 
 interface DayTotal {
   date: string;
@@ -11,18 +15,13 @@ interface DayTotal {
   byDrain: Record<string, number>;
 }
 
-type BadgeVariant = 'success' | 'danger' | 'neutral';
-
-const BADGE_CLASSES: Record<BadgeVariant, string> = {
-  success: 'bg-green/10 text-green dark:bg-green-dark/10 dark:text-green-dark',
-  danger: 'bg-danger/10 text-danger dark:bg-danger-dark/10 dark:text-danger-dark',
-  neutral: 'bg-surface-alt text-muted dark:bg-surface-alt-dark dark:text-muted-dark',
-};
-
 @Component({
   selector: 'app-stats',
   standalone: true,
-  imports: [ChartsComponent, EmptyComponent],
+  imports: [
+    EmptyComponent, SummaryStatsComponent, TrendChartCardComponent,
+    DrainAveragesComponent, CleaningComparisonComponent,
+  ],
   templateUrl: './stats.component.html'
 })
 export class StatsComponent implements OnInit {
@@ -122,11 +121,6 @@ export class StatsComponent implements OnInit {
       };
     }).reverse();
   });
-
-  comparisonBadgeClasses(diff: number): string {
-    const variant: BadgeVariant = diff < 0 ? 'success' : diff > 0 ? 'danger' : 'neutral';
-    return `inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${BADGE_CLASSES[variant]}`;
-  }
 
   // ── Tendencia general ─────────────────────────────────────────────────
   trend = computed(() => {
