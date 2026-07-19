@@ -54,37 +54,10 @@
     Fluido por día (últimos {{ dailyTotals().length }} días)
   </p>
   <div class="anim-fade-up delay-3 mb-6 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+
+    <app-charts [data]="trendChartData()" />
+
     @if (dailyTotals().length >= 2) {
-
-    <!-- Gráfica de línea SVG -->
-    <svg viewBox="0 0 300 80" xmlns="http://www.w3.org/2000/svg" class="mb-2 h-auto w-full overflow-visible text-blue dark:text-blue-dark">
-      <defs>
-        <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="currentColor" stop-opacity="0.25" />
-          <stop offset="100%" stop-color="currentColor" stop-opacity="0" />
-        </linearGradient>
-      </defs>
-      <polygon [attr.points]="'10,80 ' + trendPolyline() + ' 290,80'" fill="url(#trendGrad)" />
-
-      <polyline [attr.points]="trendPolyline()" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linejoin="round" stroke-linecap="round" />
-
-      @for (p of trendPoints(); track p.label) {
-      <circle [attr.cx]="p.x" [attr.cy]="p.y" r="3" class="fill-surface-white dark:fill-surface-white-dark"
-        stroke="currentColor" stroke-width="2" />
-      }
-    </svg>
-
-    <!-- Etiquetas del eje X -->
-    <div class="mt-1 flex justify-between px-2.5">
-      @for (day of dailyTotals(); track day.date; let first = $first; let last = $last) {
-      @if (first || last || dailyTotals().length <= 7) {
-      <span class="text-[10px] text-muted dark:text-muted-dark">{{ day.label }}</span>
-      }
-      }
-    </div>
-
-    <!-- Máximo y mínimo -->
     <div class="mt-2.5 flex justify-between border-t border-border/60 pt-2.5 dark:border-border-dark/60">
       <span class="text-xs text-muted dark:text-muted-dark">
         Max: <strong class="text-main dark:text-main-dark">{{ maxDay() }} ml</strong>
@@ -93,11 +66,6 @@
         Prom: <strong class="text-main dark:text-main-dark">{{ avgMl() }} ml</strong>
       </span>
     </div>
-
-    } @else {
-    <p class="py-4 text-center text-[13px] text-muted dark:text-muted-dark">
-      Necesitas registros en al menos 2 días distintos.
-    </p>
     }
   </div>
 

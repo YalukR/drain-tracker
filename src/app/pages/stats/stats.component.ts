@@ -1,6 +1,7 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { StorageService } from '../../core/services/storage.service';
 import { CleaningLog } from '../../core/models';
+import { ChartsComponent, ChartPoint } from '../../shared/charts/charts.component';
 
 interface DayTotal {
   date: string;
@@ -20,7 +21,7 @@ const BADGE_CLASSES: Record<BadgeVariant, string> = {
 @Component({
   selector: 'app-stats',
   standalone: true,
-  imports: [],
+  imports: [ChartsComponent],
   templateUrl: './stats.component.html'
 })
 export class StatsComponent implements OnInit {
@@ -81,30 +82,10 @@ export class StatsComponent implements OnInit {
     return Math.max(Math.round((total / this.maxDay()) * 100), total > 0 ? 4 : 0);
   }
 
-  trendPolyline = computed(() => {
-    const days = this.dailyTotals();
-    if (days.length < 2) return '';
-    const max = this.maxDay();
-    const w = 300, h = 80, pad = 10;
-    return days.map((d, i) => {
-      const x = pad + (i / (days.length - 1)) * (w - pad * 2);
-      const y = h - pad - ((d.total / max) * (h - pad * 2));
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    }).join(' ');
-  });
-
-  trendPoints = computed(() => {
-    const days = this.dailyTotals();
-    if (days.length < 2) return [];
-    const max = this.maxDay();
-    const w = 300, h = 80, pad = 10;
-    return days.map((d, i) => ({
-      x: pad + (i / (days.length - 1)) * (w - pad * 2),
-      y: h - pad - ((d.total / max) * (h - pad * 2)),
-      total: d.total,
-      label: d.label,
-    }));
-  });
+  // Adapta dailyTotals al formato genérico que espera ChartsComponent
+  trendChartData = computed((): ChartPoint[] =>
+    this.dailyTotals().map(d => ({ label: d.label, value: d.total }))
+  );
 
   // ── Por drenaje ───────────────────────────────────────────────────────
   drainIds = computed(() => {

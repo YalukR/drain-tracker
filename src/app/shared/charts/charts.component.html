@@ -1,1 +1,48 @@
-<p>charts works!</p>
+@if (data().length >= 2) {
+<svg
+  viewBox="0 0 300 80"
+  xmlns="http://www.w3.org/2000/svg"
+  [class]="'mb-2 h-auto w-full overflow-visible ' + colorClass()"
+>
+  <defs>
+    <linearGradient [attr.id]="gradientId" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="currentColor" stop-opacity="0.25" />
+      <stop offset="100%" stop-color="currentColor" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <polygon [attr.points]="areaPolygon()" [attr.fill]="'url(#' + gradientId + ')'" />
+
+  <polyline
+    [attr.points]="polyline()"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  />
+
+  @for (p of points(); track p.label) {
+  <circle
+    [attr.cx]="p.x"
+    [attr.cy]="p.y"
+    r="3"
+    class="fill-surface-white dark:fill-surface-white-dark"
+    stroke="currentColor"
+    stroke-width="2"
+  />
+  }
+</svg>
+
+<div class="mt-1 flex justify-between px-2.5">
+  @for (d of data(); track d.label; let first = $first; let last = $last) {
+  @if (first || last || showAllLabels()) {
+  <span class="text-[10px] text-muted dark:text-muted-dark">{{ d.label }}</span>
+  }
+  }
+</div>
+} @else {
+<p class="py-4 text-center text-[13px] text-muted dark:text-muted-dark">
+  Necesitas al menos 2 puntos para mostrar la gráfica.
+</p>
+}
