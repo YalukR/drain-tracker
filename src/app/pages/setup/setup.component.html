@@ -1,0 +1,31 @@
+<div class="page anim-fade-in">
+
+  <div class="mb-7">
+    <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Configuración</p>
+    <h1 class="text-2xl font-bold text-main dark:text-main-dark">Mis drenajes</h1>
+    <p class="mt-1.5 text-sm leading-relaxed text-muted dark:text-muted-dark">
+      Registra cada drenaje con su nombre y la fecha desde la que lo tienes.
+    </p>
+  </div>
+
+  <app-drain-lists [drains]="drains()" (delete)="confirmDelete($event)" />
+
+  <app-drain-form [today]="today" (add)="addDrain($event)" />
+
+  <app-general-settings [settings]="settings()" [today]="today" (save)="saveSettings($event)" />
+
+  @if (drains().length > 0) {
+  <div class="mt-2">
+    <button
+      class="flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-blue transition-colors hover:bg-blue-soft dark:text-blue-dark dark:hover:bg-blue-soft-dark"
+      (click)="router.navigate(['/clean'])">
+      <i class="pi pi-arrow-right"></i> Ir a registrar limpieza
+    </button>
+  </div>
+  }
+
+</div>
+
+<app-warning-dialog header="¿Eliminar drenaje?" [message]="deleteMessage()" confirmWord="eliminar"
+  acceptLabel="Eliminar" rejectLabel="Cancelar" [visible]="deleteDialogVisible()"
+  (visibleChange)="!$event && cancelDelete()" (cancelled)="cancelDelete()" (confirmed)="executeDelete()" />
