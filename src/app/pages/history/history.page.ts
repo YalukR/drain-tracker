@@ -1,5 +1,5 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { StorageService } from '../../core/services/storage.service';
 import { PdfService } from '../../core/services/pdf.service';
 import { CleaningLog, LIQUID_COLORS } from '../../core/models';
@@ -7,7 +7,7 @@ import { CleaningLog, LIQUID_COLORS } from '../../core/models';
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './history.page.html'
 })
 export class HistoryPage implements OnInit {

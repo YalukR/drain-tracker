@@ -1,5 +1,5 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { StorageService } from '../../core/services/storage.service';
@@ -22,7 +22,7 @@ const DEFAULT_SYMPTOMS = (): Symptoms => ({
 @Component({
   selector: 'app-clean',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [FormsModule],
   templateUrl: './clean.page.html'
 })
 export class CleanPage implements OnInit {

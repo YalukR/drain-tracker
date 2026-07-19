@@ -1,5 +1,5 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { StorageService } from '../../core/services/storage.service';
 import { CleaningLog } from '../../core/models';
 
@@ -13,7 +13,7 @@ interface DayTotal {
 @Component({
   selector: 'app-stats',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './stats.page.html'
 })
 export class StatsPage implements OnInit {
