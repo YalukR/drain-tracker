@@ -1,5 +1,4 @@
-import { Component, signal, inject, OnInit, computed, ChangeDetectionStrategy } from '@angular/core';
-
+import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { StorageService } from '../../core/services/storage.service';
 import { CleaningLog } from '../../core/models';
 
@@ -10,14 +9,21 @@ interface DayTotal {
   byDrain: Record<string, number>;
 }
 
+type BadgeVariant = 'success' | 'danger' | 'neutral';
+
+const BADGE_CLASSES: Record<BadgeVariant, string> = {
+  success: 'bg-green/10 text-green dark:bg-green-dark/10 dark:text-green-dark',
+  danger: 'bg-danger/10 text-danger dark:bg-danger-dark/10 dark:text-danger-dark',
+  neutral: 'bg-surface-alt text-muted dark:bg-surface-alt-dark dark:text-muted-dark',
+};
+
 @Component({
   selector: 'app-stats',
   standalone: true,
   imports: [],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  templateUrl: './stats.page.html'
+  templateUrl: './stats.component.html'
 })
-export class StatsPage implements OnInit {
+export class StatsComponent implements OnInit {
   private storage = inject(StorageService);
   logs = signal<CleaningLog[]>([]);
 
@@ -34,7 +40,7 @@ export class StatsPage implements OnInit {
     const surgery = new Date(this.settings.surgeryDate + 'T12:00:00');
     const today = new Date();
     const diff = Math.floor((today.getTime() - surgery.getTime()) / (1000 * 60 * 60 * 24));
-    return diff >= 0 ? diff + 1 : null; // día 1 = día de la cirugía
+    return diff >= 0 ? diff + 1 : null;
   });
 
   // ── Resumen global ────────────────────────────────────────────────────
@@ -75,14 +81,11 @@ export class StatsPage implements OnInit {
     return Math.max(Math.round((total / this.maxDay()) * 100), total > 0 ? 4 : 0);
   }
 
-  // Puntos SVG para la línea de tendencia (viewBox 0 0 300 80)
   trendPolyline = computed(() => {
     const days = this.dailyTotals();
     if (days.length < 2) return '';
     const max = this.maxDay();
-    const w = 300;
-    const h = 80;
-    const pad = 10;
+    const w = 300, h = 80, pad = 10;
     return days.map((d, i) => {
       const x = pad + (i / (days.length - 1)) * (w - pad * 2);
       const y = h - pad - ((d.total / max) * (h - pad * 2));
@@ -94,9 +97,7 @@ export class StatsPage implements OnInit {
     const days = this.dailyTotals();
     if (days.length < 2) return [];
     const max = this.maxDay();
-    const w = 300;
-    const h = 80;
-    const pad = 10;
+    const w = 300, h = 80, pad = 10;
     return days.map((d, i) => ({
       x: pad + (i / (days.length - 1)) * (w - pad * 2),
       y: h - pad - ((d.total / max) * (h - pad * 2)),
@@ -140,6 +141,11 @@ export class StatsPage implements OnInit {
     }).reverse();
   });
 
+  comparisonBadgeClasses(diff: number): string {
+    const variant: BadgeVariant = diff < 0 ? 'success' : diff > 0 ? 'danger' : 'neutral';
+    return `inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${BADGE_CLASSES[variant]}`;
+  }
+
   // ── Tendencia general ─────────────────────────────────────────────────
   trend = computed(() => {
     const ls = [...this.logs()].reverse();
@@ -150,9 +156,22 @@ export class StatsPage implements OnInit {
     return first - second; // positivo = bajando (bueno)
   });
 
-  trendIcon = computed(() => { const t = this.trend(); return t > 10 ? 'pi-arrow-down' : t < -10 ? 'pi-arrow-up' : 'pi-minus'; });
-  trendColor = computed(() => { const t = this.trend(); return t > 10 ? 'var(--color-success)' : t < -10 ? 'var(--color-danger)' : 'var(--color-text-muted)'; });
-  trendLabel = computed(() => { const t = this.trend(); return t > 10 ? 'Bajando' : t < -10 ? 'Subiendo' : 'Estable'; });
+  trendIcon = computed(() => {
+    const t = this.trend();
+    return t > 10 ? 'pi-arrow-down' : t < -10 ? 'pi-arrow-up' : 'pi-minus';
+  });
+
+  trendColorClass = computed(() => {
+    const t = this.trend();
+    if (t > 10) return 'text-green dark:text-green-dark';
+    if (t < -10) return 'text-danger dark:text-danger-dark';
+    return 'text-muted dark:text-muted-dark';
+  });
+
+  trendLabel = computed(() => {
+    const t = this.trend();
+    return t > 10 ? 'Bajando' : t < -10 ? 'Subiendo' : 'Estable';
+  });
 
   // ── Helpers ───────────────────────────────────────────────────────────
   shortDate(d: string): string {

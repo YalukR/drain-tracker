@@ -18,7 +18,7 @@ export const routes: Routes = [
   },
   {
     path: 'stats',
-    loadComponent: () => import('./pages/stats/stats.page').then(m => m.StatsPage),
+    loadComponent: () => import('./pages/stats/stats.component').then(m => m.StatsComponent),
     data: { icon: 'pi-chart-bar', label: 'Estadísticas' },
   },
   {
