@@ -2,9 +2,9 @@ import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { StorageService } from '../../services/storage.service';
-import { CleaningLog, DrainEntry, Symptoms, LIQUID_COLORS, LiquidColor, PainLevel, BruiseColor } from '../../models';
-import { NotificationService } from 'src/app/services/notification.service';
+import { StorageService } from '../../core/services/storage.service';
+import { CleaningLog, DrainEntry, Symptoms, LIQUID_COLORS, LiquidColor, PainLevel, BruiseColor } from '../../core/models';
+import { NotificationService } from 'src/app/core/services/notification.service';
 
 const DEFAULT_SYMPTOMS = (): Symptoms => ({
   redness: false,

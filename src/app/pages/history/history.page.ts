@@ -1,8 +1,8 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StorageService } from '../../services/storage.service';
-import { PdfService } from '../../services/pdf.service';
-import { CleaningLog, LIQUID_COLORS } from '../../models';
+import { StorageService } from '../../core/services/storage.service';
+import { PdfService } from '../../core/services/pdf.service';
+import { CleaningLog, LIQUID_COLORS } from '../../core/models';
 
 @Component({
   selector: 'app-history',
