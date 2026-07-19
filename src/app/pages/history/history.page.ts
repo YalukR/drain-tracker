@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { StorageService } from '../../core/services/storage.service';
 import { PdfService } from '../../core/services/pdf.service';
@@ -8,6 +8,7 @@ import { CleaningLog, LIQUID_COLORS } from '../../core/models';
   selector: 'app-history',
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './history.page.html'
 })
 export class HistoryPage implements OnInit {

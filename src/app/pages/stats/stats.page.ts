@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, computed } from '@angular/core';
+import { Component, signal, inject, OnInit, computed, ChangeDetectionStrategy } from '@angular/core';
 
 import { StorageService } from '../../core/services/storage.service';
 import { CleaningLog } from '../../core/models';
@@ -14,6 +14,7 @@ interface DayTotal {
   selector: 'app-stats',
   standalone: true,
   imports: [],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './stats.page.html'
 })
 export class StatsPage implements OnInit {

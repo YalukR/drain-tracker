@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { filter, map, startWith } from 'rxjs/operators';
@@ -21,6 +21,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
       }
     </nav>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .bnav {
       position: fixed;

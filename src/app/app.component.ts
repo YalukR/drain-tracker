@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { BottomNavComponent } from './components/bottom-nav/bottom-nav.component';
 import { NotificationService } from './core/services/notification.service';
@@ -7,6 +7,7 @@ import { NotificationService } from './core/services/notification.service';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, BottomNavComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <router-outlet />
     <app-bottom-nav />
