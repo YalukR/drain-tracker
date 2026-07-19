@@ -13,7 +13,7 @@ export const routes: Routes = [
   },
   {
     path: 'history',
-    loadComponent: () => import('./pages/history/history.page').then(m => m.HistoryPage),
+    loadComponent: () => import('./pages/history/history.component').then(m => m.HistoryComponent),
     data: { icon: 'pi-list', label: 'Historial' },
   },
   {
