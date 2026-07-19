@@ -1,0 +1,25 @@
+@if (drains().length > 0) {
+<p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Drenajes configurados</p>
+<div class="mb-6 flex flex-col gap-2.5">
+    @for (d of drains(); track d.id; let i = $index) {
+    <div
+        class="anim-fade-up delay-{{i+1}} flex items-center gap-3 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+        <div
+            class="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-blue-soft dark:bg-blue-soft-dark">
+            <i class="pi pi-circle-fill text-[10px] text-blue dark:text-blue-dark"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+            <div class="text-[15px] font-semibold text-main dark:text-main-dark">{{ d.label }}</div>
+            <div class="mt-0.5 text-xs text-muted dark:text-muted-dark">
+                Desde {{ formatDate(d.startDate) }}
+            </div>
+        </div>
+        <button
+            class="flex h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface-alt hover:text-danger dark:text-muted-dark dark:hover:bg-surface-alt-dark dark:hover:text-danger-dark"
+            (click)="delete.emit(d)" aria-label="Eliminar">
+            <i class="pi pi-trash"></i>
+        </button>
+    </div>
+    }
+</div>
+}
