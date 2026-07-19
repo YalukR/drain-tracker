@@ -1,1 +1,18 @@
-<p>page-header works!</p>
+<div class="mb-5"></div>
+
+<div class="flex items-center justify-between gap-3 mb-4">
+  <button *ngIf="showBack"
+    class="w-9 h-9 flex-none flex items-center justify-center rounded-full text-muted dark:text-muted-dark hover:bg-surface-alt dark:hover:bg-surface-alt-dark hover:text-main dark:hover:text-main-dark transition-colors"
+    (click)="goBack()">
+    <i class="pi pi-arrow-left"></i>
+  </button>
+
+  <h2 class="text-lg font-semibold text-main dark:text-main-dark m-0" [class.flex-1]="centered" [class.text-center]="centered"
+    [class.truncate]="centered">
+    {{ title }}
+  </h2>
+
+  <div class="flex items-center gap-2 flex-none" [class.ml-auto]="!centered">
+    <ng-content></ng-content>
+  </div>
+</div>
