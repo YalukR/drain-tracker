@@ -1,6 +1,6 @@
-import { Component, signal, inject, OnInit, computed, ChangeDetectionStrategy } from '@angular/core';
-
+import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { StorageService } from '../../core/services/storage.service';
 import { CleaningLog, DrainEntry, Symptoms, LIQUID_COLORS, LiquidColor, PainLevel, BruiseColor } from '../../core/models';
@@ -22,11 +22,10 @@ const DEFAULT_SYMPTOMS = (): Symptoms => ({
 @Component({
   selector: 'app-clean',
   standalone: true,
-  imports: [FormsModule],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  templateUrl: './clean.page.html'
+  imports: [FormsModule, ButtonModule],
+  templateUrl: './clean.component.html'
 })
-export class CleanPage implements OnInit {
+export class CleanComponent implements OnInit {
   router = inject(Router);
   private storage = inject(StorageService);
   private notifications = inject(NotificationService);

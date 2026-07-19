@@ -8,7 +8,7 @@ export const routes: Routes = [
   },
   {
     path: 'clean',
-    loadComponent: () => import('./pages/clean/clean.page').then(m => m.CleanPage),
+    loadComponent: () => import('./pages/clean/clean.component').then(m => m.CleanComponent),
     data: { icon: 'pi-plus-circle', label: 'Registrar' },
   },
   {

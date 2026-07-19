@@ -1,0 +1,303 @@
+<div class="page anim-fade-in">
+
+    <div class="mb-7">
+        <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Nueva limpieza</p>
+        <h1 class="text-2xl font-bold text-main dark:text-main-dark">Registrar vaciado</h1>
+        <p class="mt-1.5 text-sm text-muted dark:text-muted-dark">
+            {{ nowStr() }}
+        </p>
+    </div>
+
+    @if (drains().length === 0) {
+    <div
+        class="anim-scale-in flex flex-col items-center gap-3 rounded-xl border border-border bg-surface-white p-8 text-center dark:border-border-dark dark:bg-surface-white-dark">
+        <div
+            class="flex h-14 w-14 items-center justify-center rounded-full bg-danger/10 text-2xl text-danger dark:bg-danger-dark/10 dark:text-danger-dark">
+            <i class="pi pi-exclamation-circle"></i>
+        </div>
+        <h3 class="text-lg font-bold text-main dark:text-main-dark">Sin drenajes configurados</h3>
+        <p class="text-sm text-muted dark:text-muted-dark">Primero agrega tus drenajes en la pantalla de inicio.</p>
+        <p-button label="Ir a inicio" icon="pi pi-home" (onClick)="router.navigate(['/'])" styleClass="mt-2" />
+    </div>
+    } @else {
+
+    <!-- ── Por drenaje ─────────────────────────────────────────────── -->
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Cantidad por drenaje</p>
+    <div class="mb-6 flex flex-col gap-3">
+        @for (d of drains(); track d.id; let i = $index) {
+        <div
+            class="anim-fade-up delay-{{i+1}} rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+
+            <!-- Nombre drenaje -->
+            <div class="mb-3.5 flex items-center gap-2">
+                <i class="pi pi-circle-fill text-[8px] text-blue dark:text-blue-dark"></i>
+                <span class="text-[15px] font-semibold text-main dark:text-main-dark">{{ d.label }}</span>
+            </div>
+
+            <!-- Cantidad -->
+            <div class="mb-3.5 flex items-center gap-2.5">
+                <button
+                    class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-border text-main transition-colors hover:bg-surface-alt disabled:cursor-not-allowed disabled:opacity-40 dark:border-border-dark dark:text-main-dark dark:hover:bg-surface-alt-dark"
+                    (click)="decrement(d.id)" [disabled]="getAmount(d.id) <= 0">
+                    <i class="pi pi-minus"></i>
+                </button>
+                <div class="relative flex-1">
+                    <input type="number" [ngModel]="getAmount(d.id)" (ngModelChange)="setAmount(d.id, $event)" min="0"
+                        max="999"
+                        class="w-full rounded-lg border border-border bg-surface-white py-2.5 text-center text-xl font-bold text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
+                    <span
+                        class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted dark:text-muted-dark">ml</span>
+                </div>
+                <button
+                    class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-border text-main transition-colors hover:bg-surface-alt dark:border-border-dark dark:text-main-dark dark:hover:bg-surface-alt-dark"
+                    (click)="increment(d.id)">
+                    <i class="pi pi-plus"></i>
+                </button>
+            </div>
+
+            <!-- Color del líquido -->
+            <div class="mb-3">
+                <label class="mb-1.5 block text-sm font-medium text-main dark:text-main-dark">Color del líquido</label>
+                <div class="grid grid-cols-3 gap-1.5">
+                    @for (c of liquidColors; track c.value) {
+                    <button (click)="setColor(d.id, c.value)"
+                        [style.border-color]="getColor(d.id) === c.value ? c.hex : 'transparent'"
+                        class="flex flex-col items-center gap-1.5 rounded-lg border-2 bg-surface-alt px-1.5 py-2 transition-all dark:bg-surface-alt-dark">
+                        <span [style.background]="c.hex"
+                            class="block h-5 w-5 rounded-full border border-white/15"></span>
+                        <span class="text-center text-[10px] leading-tight text-muted dark:text-muted-dark">
+                            {{ c.label }}
+                        </span>
+                    </button>
+                    }
+                </div>
+            </div>
+
+            <!-- Coágulo -->
+            <div class="mb-2.5">
+                <label class="mb-2.5 flex items-center gap-2">
+                    <input type="checkbox" [ngModel]="getEntry(d.id).hasClot"
+                        (ngModelChange)="setEntryField(d.id, 'hasClot', $event)"
+                        class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+                    <span class="text-sm text-main dark:text-main-dark">Salió coágulo</span>
+                </label>
+
+                @if (getEntry(d.id).hasClot) {
+                <div
+                    class="anim-scale-in mt-2 flex flex-col gap-2.5 rounded-lg bg-surface-alt p-3 dark:bg-surface-alt-dark">
+                    <div>
+                        <p class="mb-1.5 text-xs text-muted dark:text-muted-dark">Tamaño</p>
+                        <div class="flex gap-2">
+                            @for (opt of [{v:'pequeno',l:'Pequeño'},{v:'grande',l:'Grande'}]; track opt.v) {
+                            <button (click)="setEntryField(d.id, 'clotSize', opt.v)"
+                                [class.bg-blue-soft]="getEntry(d.id).clotSize === opt.v"
+                                [class.dark:bg-blue-soft-dark]="getEntry(d.id).clotSize === opt.v"
+                                [class.border-blue]="getEntry(d.id).clotSize === opt.v"
+                                [class.dark:border-blue-dark]="getEntry(d.id).clotSize === opt.v"
+                                class="flex-1 rounded-lg border-[1.5px] border-border px-2 py-2 text-sm font-medium text-main transition-all dark:border-border-dark dark:text-main-dark">
+                                {{ opt.l }}
+                            </button>
+                            }
+                        </div>
+                    </div>
+                    <div>
+                        <p class="mb-1.5 text-xs text-muted dark:text-muted-dark">¿Qué pasó?</p>
+                        <div class="flex gap-2">
+                            @for (opt of [{v:'drenoSolo',l:'Se drenó solo'},{v:'atascado',l:'Se atascó en el tubo'}];
+                            track opt.v) {
+                            <button (click)="setEntryField(d.id, 'clotStatus', opt.v)"
+                                [class.bg-blue-soft]="getEntry(d.id).clotStatus === opt.v"
+                                [class.dark:bg-blue-soft-dark]="getEntry(d.id).clotStatus === opt.v"
+                                [class.border-blue]="getEntry(d.id).clotStatus === opt.v"
+                                [class.dark:border-blue-dark]="getEntry(d.id).clotStatus === opt.v"
+                                class="flex-1 rounded-lg border-[1.5px] border-border px-2 py-2 text-center text-xs font-medium text-main transition-all dark:border-border-dark dark:text-main-dark">
+                                {{ opt.l }}
+                            </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+
+            <!-- Fuga por la piel -->
+            <label class="flex items-center gap-2">
+                <input type="checkbox" [ngModel]="getEntry(d.id).leakingOutside"
+                    (ngModelChange)="setEntryField(d.id, 'leakingOutside', $event)"
+                    class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+                <span class="text-sm text-main dark:text-main-dark">Hubo fuga por el orificio de la piel</span>
+            </label>
+
+        </div>
+        }
+    </div>
+
+    <!-- ── Síntomas ────────────────────────────────────────────────── -->
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Síntomas</p>
+    <div
+        class="anim-fade-up mb-6 flex flex-col gap-3.5 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+
+        <label class="flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="symptoms.redness"
+                class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+            <span class="text-sm text-main dark:text-main-dark">Enrojecimiento en la herida</span>
+        </label>
+
+        <label class="flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="symptoms.numbness"
+                class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+            <span class="text-sm text-main dark:text-main-dark">Adormecimiento</span>
+        </label>
+
+        <label class="flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="symptoms.suctionSensation"
+                class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+            <span class="text-sm text-main dark:text-main-dark">Sensación de vacío / succión</span>
+        </label>
+
+        <label class="flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="symptoms.tingling"
+                class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+            <span class="text-sm text-main dark:text-main-dark">Pinchazos</span>
+        </label>
+
+        <label class="flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="symptoms.itching"
+                class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+            <span class="text-sm text-main dark:text-main-dark">Comezón</span>
+        </label>
+
+        <!-- Nivel de dolor -->
+        <div>
+            <p class="mb-2 text-[13px] font-medium text-muted dark:text-muted-dark">Nivel de dolor</p>
+            <div class="grid grid-cols-4 gap-1.5">
+                @for (opt of painOptions; track opt.v) {
+                <button (click)="symptoms.painLevel = opt.v" [class.bg-blue-soft]="symptoms.painLevel === opt.v"
+                    [class.dark:bg-blue-soft-dark]="symptoms.painLevel === opt.v"
+                    [class.border-blue]="symptoms.painLevel === opt.v"
+                    [class.dark:border-blue-dark]="symptoms.painLevel === opt.v"
+                    class="rounded-lg border-[1.5px] border-border px-1 py-2 text-center text-xs font-medium text-main transition-all dark:border-border-dark dark:text-main-dark">
+                    {{ opt.l }}
+                </button>
+                }
+            </div>
+        </div>
+
+        <!-- Cambios en la piel -->
+        <label class="flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="symptoms.skinColorChange"
+                class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+            <span class="text-sm text-main dark:text-main-dark">Cambio de coloración en la piel</span>
+        </label>
+
+        @if (symptoms.skinColorChange) {
+        <div class="anim-scale-in rounded-lg bg-surface-alt p-3 dark:bg-surface-alt-dark">
+            <p class="mb-2 text-xs text-muted dark:text-muted-dark">Color del hematoma</p>
+            <div class="flex flex-wrap gap-2">
+                @for (opt of bruiseOptions; track opt.v) {
+                <button (click)="symptoms.bruiseColor = opt.v"
+                    [style.background]="symptoms.bruiseColor === opt.v ? opt.hex + '33' : 'transparent'"
+                    [style.border-color]="symptoms.bruiseColor === opt.v ? opt.hex : 'var(--tw-border-color, inherit)'"
+                    class="rounded-full border-[1.5px] border-border px-3.5 py-2 text-xs font-medium text-main transition-all dark:border-border-dark dark:text-main-dark">
+                    {{ opt.l }}
+                </button>
+                }
+            </div>
+        </div>
+        }
+
+        <!-- Fiebre -->
+        <label class="flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="symptoms.fever"
+                class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+            <span class="text-sm text-main dark:text-main-dark">Fiebre</span>
+        </label>
+
+        @if (symptoms.fever) {
+        <div class="anim-scale-in">
+            <label class="mb-1.5 block text-sm font-medium text-main dark:text-main-dark">Temperatura (°C)</label>
+            <input type="number" [(ngModel)]="symptoms.feverTemp" min="35" max="42" step="0.1" placeholder="ej: 38.5"
+                class="w-full rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
+        </div>
+        }
+
+    </div>
+
+    <!-- ── Actividades ─────────────────────────────────────────────── -->
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Actividades</p>
+    <div
+        class="anim-fade-up mb-6 flex flex-col gap-3.5 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+        <label class="flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="bathed" class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+            <span class="text-sm text-main dark:text-main-dark">Se bañó / duchó</span>
+        </label>
+        <label class="flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="bandageChanged"
+                class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+            <span class="text-sm text-main dark:text-main-dark">Se cambió el vendaje</span>
+        </label>
+    </div>
+
+    <!-- ── Notas ───────────────────────────────────────────────────── -->
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Notas adicionales
+        (opcional)</p>
+    <div class="anim-fade-up mb-6">
+        <textarea [(ngModel)]="notes" rows="3" placeholder="Cualquier observación adicional..."
+            class="w-full resize-none rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark"></textarea>
+    </div>
+
+    <!-- ── Fecha manual ───────────────────────────────────────────────── -->
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Fecha del registro</p>
+    <div
+        class="anim-fade-up mb-6 flex flex-col gap-3.5 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+        <label class="flex items-center gap-2">
+            <input type="checkbox" [(ngModel)]="useCustomDate"
+                class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+            <span class="text-sm text-main dark:text-main-dark">Registrar con fecha diferente</span>
+        </label>
+
+        @if (useCustomDate) {
+        <div class="anim-scale-in flex flex-col gap-2.5">
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-main dark:text-main-dark">Fecha</label>
+                <input type="date" [(ngModel)]="customDatePart" [max]="today"
+                    class="w-full rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
+            </div>
+            <div>
+                <label class="mb-1.5 block text-sm font-medium text-main dark:text-main-dark">Hora (opcional)</label>
+                <input type="time" [(ngModel)]="customTimePart" placeholder="Si no se pone, se usa mediodía"
+                    class="w-full rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
+            </div>
+        </div>
+        }
+    </div>
+
+    <!-- ── Alerta de volumen ──────────────────────────────────────────────── -->
+    @if (thresholdExceeded()) {
+    <div
+        class="anim-scale-in mb-6 flex items-start gap-3 rounded-lg border border-danger bg-danger/10 p-4 dark:border-danger-dark dark:bg-danger-dark/10">
+        <i class="pi pi-exclamation-triangle mt-0.5 flex-shrink-0 text-lg text-danger dark:text-danger-dark"></i>
+        <div>
+            <p class="mb-1 text-sm font-bold text-danger dark:text-danger-dark">
+                Volumen elevado
+            </p>
+            <p class="text-[13px] leading-relaxed text-muted dark:text-muted-dark">
+                El total de esta limpieza ({{ totalMl() }} ml) supera el límite configurado
+                ({{ alertThresholdMl() }} ml). Considera contactar a tu médico.
+            </p>
+        </div>
+    </div>
+    }
+
+    <!-- ── Guardar ─────────────────────────────────────────────────── -->
+    <p-button styleClass="w-full" [label]="saving() ? 'Guardando...' : 'Guardar registro'"
+        [icon]="saving() ? 'pi pi-spin pi-spinner' : 'pi pi-check-circle'" [disabled]="saving()" (onClick)="save()" />
+
+    @if (saved()) {
+    <div
+        class="anim-scale-in mt-4 flex items-center justify-center gap-1.5 text-sm font-semibold text-green dark:text-green-dark">
+        <i class="pi pi-check"></i> Registro guardado correctamente
+    </div>
+    }
+    }
+</div>
