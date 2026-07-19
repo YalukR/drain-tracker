@@ -3,6 +3,7 @@ import { StorageService } from '../../core/services/storage.service';
 import { PdfService } from '../../core/services/pdf.service';
 import { CleaningLog, LIQUID_COLORS } from '../../core/models';
 import { WarningDialogComponent } from '../../shared/warn-dialog/warn-dialog.component';
+import { EmptyComponent } from 'src/app/shared/empty/empty.component';
 
 type BadgeVariant = 'cyan' | 'success' | 'danger' | 'warning' | 'neutral';
 
@@ -17,7 +18,7 @@ const BADGE_CLASSES: Record<BadgeVariant, string> = {
 @Component({
   selector: 'app-history',
   standalone: true,
-  imports: [WarningDialogComponent],
+  imports: [WarningDialogComponent, EmptyComponent],
   templateUrl: './history.component.html'
 })
 export class HistoryComponent implements OnInit {

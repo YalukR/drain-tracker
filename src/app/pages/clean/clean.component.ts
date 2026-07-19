@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { StorageService } from '../../core/services/storage.service';
 import { CleaningLog, DrainEntry, Symptoms, LIQUID_COLORS, LiquidColor, PainLevel, BruiseColor } from '../../core/models';
 import { NotificationService } from 'src/app/core/services/notification.service';
+import { EmptyComponent } from 'src/app/shared/empty/empty.component';
+import { PillSelectComponent, PillOption } from 'src/app/shared/pill-select/pill-select.component';
 
 const DEFAULT_SYMPTOMS = (): Symptoms => ({
   redness: false,
@@ -19,10 +21,24 @@ const DEFAULT_SYMPTOMS = (): Symptoms => ({
   feverTemp: undefined,
 });
 
+// Tipos extraídos directo de DrainEntry, para no duplicar el string literal a mano
+type ClotSize = NonNullable<DrainEntry['clotSize']>;
+type ClotStatus = NonNullable<DrainEntry['clotStatus']>;
+
+const CLOT_SIZE_OPTIONS: PillOption<ClotSize>[] = [
+  { value: 'pequeno', label: 'Pequeño' },
+  { value: 'grande', label: 'Grande' },
+];
+
+const CLOT_STATUS_OPTIONS: PillOption<ClotStatus>[] = [
+  { value: 'drenoSolo', label: 'Se drenó solo' },
+  { value: 'atascado', label: 'Se atascó en el tubo' },
+];
+
 @Component({
   selector: 'app-clean',
   standalone: true,
-  imports: [FormsModule, ButtonModule],
+  imports: [FormsModule, ButtonModule, EmptyComponent, PillSelectComponent],
   templateUrl: './clean.component.html'
 })
 export class CleanComponent implements OnInit {
@@ -47,17 +63,21 @@ export class CleanComponent implements OnInit {
   alertThresholdMl = signal<number | undefined>(undefined);
 
   liquidColors = LIQUID_COLORS;
-  painOptions: { v: PainLevel; l: string }[] = [
-    { v: 'ninguno', l: 'Ninguno' },
-    { v: 'suave', l: 'Suave' },
-    { v: 'moderado', l: 'Moderado' },
-    { v: 'intenso', l: 'Intenso' },
+  clotSizeOptions = CLOT_SIZE_OPTIONS;
+  clotStatusOptions = CLOT_STATUS_OPTIONS;
+
+  painOptions: PillOption<PainLevel>[] = [
+    { value: 'ninguno', label: 'Ninguno' },
+    { value: 'suave', label: 'Suave' },
+    { value: 'moderado', label: 'Moderado' },
+    { value: 'intenso', label: 'Intenso' },
   ];
-  bruiseOptions: { v: BruiseColor; l: string; hex: string }[] = [
-    { v: 'rojo', l: 'Rojo', hex: '#ef4444' },
-    { v: 'morado', l: 'Morado', hex: '#a855f7' },
-    { v: 'verde', l: 'Verde', hex: '#22c55e' },
-    { v: 'amarillo', l: 'Amarillo', hex: '#f59e0b' },
+
+  bruiseOptions: PillOption<BruiseColor>[] = [
+    { value: 'rojo', label: 'Rojo', hex: '#ef4444' },
+    { value: 'morado', label: 'Morado', hex: '#a855f7' },
+    { value: 'verde', label: 'Verde', hex: '#22c55e' },
+    { value: 'amarillo', label: 'Amarillo', hex: '#f59e0b' },
   ];
 
   nowStr = computed(() => {
@@ -110,6 +130,7 @@ export class CleanComponent implements OnInit {
     }
     return new Date().toISOString();
   }
+
   save(): void {
     this.saving.set(true);
     const entries: DrainEntry[] = this.drains().map(d => ({
@@ -135,9 +156,7 @@ export class CleanComponent implements OnInit {
 
     this.storage.addLog(log);
 
-
     setTimeout(async () => {
-
       await this.notifications.reschedule();
       this.saving.set(false);
       this.saved.set(true);

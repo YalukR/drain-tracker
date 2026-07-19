@@ -9,16 +9,9 @@
     </div>
 
     @if (drains().length === 0) {
-    <div
-        class="anim-scale-in flex flex-col items-center gap-3 rounded-xl border border-border bg-surface-white p-8 text-center dark:border-border-dark dark:bg-surface-white-dark">
-        <div
-            class="flex h-14 w-14 items-center justify-center rounded-full bg-danger/10 text-2xl text-danger dark:bg-danger-dark/10 dark:text-danger-dark">
-            <i class="pi pi-exclamation-circle"></i>
-        </div>
-        <h3 class="text-lg font-bold text-main dark:text-main-dark">Sin drenajes configurados</h3>
-        <p class="text-sm text-muted dark:text-muted-dark">Primero agrega tus drenajes en la pantalla de inicio.</p>
-        <p-button label="Ir a inicio" icon="pi pi-home" (onClick)="router.navigate(['/'])" styleClass="mt-2" />
-    </div>
+    <app-empty icon="pi-exclamation-circle" title="Sin drenajes configurados"
+        description="Primero agrega tus drenajes en la pantalla de inicio." actionLabel="Ir a inicio"
+        actionIcon="pi-home" (action)="router.navigate(['/'])" />
     } @else {
 
     <!-- ── Por drenaje ─────────────────────────────────────────────── -->
@@ -87,34 +80,13 @@
                     class="anim-scale-in mt-2 flex flex-col gap-2.5 rounded-lg bg-surface-alt p-3 dark:bg-surface-alt-dark">
                     <div>
                         <p class="mb-1.5 text-xs text-muted dark:text-muted-dark">Tamaño</p>
-                        <div class="flex gap-2">
-                            @for (opt of [{v:'pequeno',l:'Pequeño'},{v:'grande',l:'Grande'}]; track opt.v) {
-                            <button (click)="setEntryField(d.id, 'clotSize', opt.v)"
-                                [class.bg-blue-soft]="getEntry(d.id).clotSize === opt.v"
-                                [class.dark:bg-blue-soft-dark]="getEntry(d.id).clotSize === opt.v"
-                                [class.border-blue]="getEntry(d.id).clotSize === opt.v"
-                                [class.dark:border-blue-dark]="getEntry(d.id).clotSize === opt.v"
-                                class="flex-1 rounded-lg border-[1.5px] border-border px-2 py-2 text-sm font-medium text-main transition-all dark:border-border-dark dark:text-main-dark">
-                                {{ opt.l }}
-                            </button>
-                            }
-                        </div>
+                        <app-pill-select [options]="clotSizeOptions" [value]="getEntry(d.id).clotSize"
+                            (valueChange)="setEntryField(d.id, 'clotSize', $event)" />
                     </div>
                     <div>
                         <p class="mb-1.5 text-xs text-muted dark:text-muted-dark">¿Qué pasó?</p>
-                        <div class="flex gap-2">
-                            @for (opt of [{v:'drenoSolo',l:'Se drenó solo'},{v:'atascado',l:'Se atascó en el tubo'}];
-                            track opt.v) {
-                            <button (click)="setEntryField(d.id, 'clotStatus', opt.v)"
-                                [class.bg-blue-soft]="getEntry(d.id).clotStatus === opt.v"
-                                [class.dark:bg-blue-soft-dark]="getEntry(d.id).clotStatus === opt.v"
-                                [class.border-blue]="getEntry(d.id).clotStatus === opt.v"
-                                [class.dark:border-blue-dark]="getEntry(d.id).clotStatus === opt.v"
-                                class="flex-1 rounded-lg border-[1.5px] border-border px-2 py-2 text-center text-xs font-medium text-main transition-all dark:border-border-dark dark:text-main-dark">
-                                {{ opt.l }}
-                            </button>
-                            }
-                        </div>
+                        <app-pill-select [options]="clotStatusOptions" [value]="getEntry(d.id).clotStatus"
+                            (valueChange)="setEntryField(d.id, 'clotStatus', $event)" />
                     </div>
                 </div>
                 }
@@ -170,17 +142,8 @@
         <!-- Nivel de dolor -->
         <div>
             <p class="mb-2 text-[13px] font-medium text-muted dark:text-muted-dark">Nivel de dolor</p>
-            <div class="grid grid-cols-4 gap-1.5">
-                @for (opt of painOptions; track opt.v) {
-                <button (click)="symptoms.painLevel = opt.v" [class.bg-blue-soft]="symptoms.painLevel === opt.v"
-                    [class.dark:bg-blue-soft-dark]="symptoms.painLevel === opt.v"
-                    [class.border-blue]="symptoms.painLevel === opt.v"
-                    [class.dark:border-blue-dark]="symptoms.painLevel === opt.v"
-                    class="rounded-lg border-[1.5px] border-border px-1 py-2 text-center text-xs font-medium text-main transition-all dark:border-border-dark dark:text-main-dark">
-                    {{ opt.l }}
-                </button>
-                }
-            </div>
+            <app-pill-select [options]="painOptions" [value]="symptoms.painLevel" layout="grid-4"
+                (valueChange)="symptoms.painLevel = $event" />
         </div>
 
         <!-- Cambios en la piel -->
@@ -193,16 +156,8 @@
         @if (symptoms.skinColorChange) {
         <div class="anim-scale-in rounded-lg bg-surface-alt p-3 dark:bg-surface-alt-dark">
             <p class="mb-2 text-xs text-muted dark:text-muted-dark">Color del hematoma</p>
-            <div class="flex flex-wrap gap-2">
-                @for (opt of bruiseOptions; track opt.v) {
-                <button (click)="symptoms.bruiseColor = opt.v"
-                    [style.background]="symptoms.bruiseColor === opt.v ? opt.hex + '33' : 'transparent'"
-                    [style.border-color]="symptoms.bruiseColor === opt.v ? opt.hex : 'var(--tw-border-color, inherit)'"
-                    class="rounded-full border-[1.5px] border-border px-3.5 py-2 text-xs font-medium text-main transition-all dark:border-border-dark dark:text-main-dark">
-                    {{ opt.l }}
-                </button>
-                }
-            </div>
+            <app-pill-select [options]="bruiseOptions" [value]="symptoms.bruiseColor" layout="wrap" shape="round"
+                (valueChange)="symptoms.bruiseColor = $event" />
         </div>
         }
 

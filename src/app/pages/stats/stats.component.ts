@@ -2,6 +2,7 @@ import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { StorageService } from '../../core/services/storage.service';
 import { CleaningLog } from '../../core/models';
 import { ChartsComponent, ChartPoint } from '../../shared/charts/charts.component';
+import { EmptyComponent } from 'src/app/shared/empty/empty.component';
 
 interface DayTotal {
   date: string;
@@ -21,7 +22,7 @@ const BADGE_CLASSES: Record<BadgeVariant, string> = {
 @Component({
   selector: 'app-stats',
   standalone: true,
-  imports: [ChartsComponent],
+  imports: [ChartsComponent, EmptyComponent],
   templateUrl: './stats.component.html'
 })
 export class StatsComponent implements OnInit {

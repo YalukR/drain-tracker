@@ -1,118 +1,124 @@
 <div class="page anim-fade-in">
 
-  <div class="mb-7">
-    <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Análisis</p>
-    <h1 class="text-2xl font-bold text-main dark:text-main-dark">Estadísticas</h1>
-    @if (recoveryDay()) {
-    <div class="mt-2.5 inline-flex items-center gap-2 rounded-full bg-blue-soft px-3.5 py-1.5 dark:bg-blue-soft-dark">
-      <i class="pi pi-heart text-[13px] text-blue dark:text-blue-dark"></i>
-      <span class="text-[13px] font-semibold text-blue dark:text-blue-dark">
-        Día {{ recoveryDay() }} de recuperación
-      </span>
-    </div>
-    }
-  </div>
-
-  @if (logs().length < 2) {
-  <div class="anim-scale-in flex flex-col items-center gap-3 rounded-xl border border-border bg-surface-white p-8 text-center dark:border-border-dark dark:bg-surface-white-dark">
-    <div class="flex h-14 w-14 items-center justify-center rounded-full bg-surface-alt text-2xl text-muted dark:bg-surface-alt-dark dark:text-muted-dark">
-      <i class="pi pi-chart-bar"></i>
-    </div>
-    <h3 class="text-lg font-bold text-main dark:text-main-dark">Pocos datos aún</h3>
-    <p class="text-sm text-muted dark:text-muted-dark">Necesitas al menos 2 registros para ver tendencias.</p>
-  </div>
-  } @else {
-
-  <!-- ── Resumen global ──────────────────────────────────────────────── -->
-  <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Resumen</p>
-  <div class="mb-6 grid grid-cols-2 gap-2.5">
-    <div class="anim-fade-up delay-1 rounded-xl border border-border bg-surface-white p-4 text-center dark:border-border-dark dark:bg-surface-white-dark">
-      <div class="text-2xl font-bold text-blue dark:text-blue-dark">{{ totalLogs() }}</div>
-      <div class="mt-1 text-xs text-muted dark:text-muted-dark">Limpiezas</div>
-    </div>
-    <div class="anim-fade-up delay-2 rounded-xl border border-border bg-surface-white p-4 text-center dark:border-border-dark dark:bg-surface-white-dark">
-      <div class="text-2xl font-bold text-blue dark:text-blue-dark">{{ totalMl() }}</div>
-      <div class="mt-1 text-xs text-muted dark:text-muted-dark">ml totales</div>
-    </div>
-    <div class="anim-fade-up delay-3 rounded-xl border border-border bg-surface-white p-4 text-center dark:border-border-dark dark:bg-surface-white-dark">
-      <div class="text-2xl font-bold text-blue dark:text-blue-dark">{{ avgMl() }}</div>
-      <div class="mt-1 text-xs text-muted dark:text-muted-dark">ml promedio</div>
-    </div>
-    <div class="anim-fade-up delay-4 rounded-xl border border-border bg-surface-white p-4 text-center dark:border-border-dark dark:bg-surface-white-dark">
-      <div [class]="'text-xl font-bold ' + trendColorClass()">
-        <i [class]="'pi ' + trendIcon()"></i>
-      </div>
-      <div class="mt-1 text-xs text-muted dark:text-muted-dark">Tendencia</div>
-      <div [class]="'mt-0.5 text-[11px] font-semibold ' + trendColorClass()">
-        {{ trendLabel() }}
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Línea de tendencia ──────────────────────────────────────────── -->
-  <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">
-    Fluido por día (últimos {{ dailyTotals().length }} días)
-  </p>
-  <div class="anim-fade-up delay-3 mb-6 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
-
-    <app-charts [data]="trendChartData()" />
-
-    @if (dailyTotals().length >= 2) {
-    <div class="mt-2.5 flex justify-between border-t border-border/60 pt-2.5 dark:border-border-dark/60">
-      <span class="text-xs text-muted dark:text-muted-dark">
-        Max: <strong class="text-main dark:text-main-dark">{{ maxDay() }} ml</strong>
-      </span>
-      <span class="text-xs text-muted dark:text-muted-dark">
-        Prom: <strong class="text-main dark:text-main-dark">{{ avgMl() }} ml</strong>
-      </span>
-    </div>
-    }
-  </div>
-
-  <!-- ── Por drenaje ─────────────────────────────────────────────────── -->
-  @if (drainIds().length > 1) {
-  <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Promedio por drenaje</p>
-  <div class="mb-6 flex flex-col gap-2.5">
-    @for (dr of drainAvgs(); track dr.id; let i = $index) {
-    <div class="anim-fade-up delay-{{i+1}} rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
-      <div class="mb-2 flex items-center justify-between">
-        <span class="text-sm font-semibold text-main dark:text-main-dark">
-          <i class="pi pi-circle-fill mr-1.5 text-[8px] text-blue dark:text-blue-dark"></i>
-          {{ dr.label }}
-        </span>
-        <span class="text-[15px] font-bold text-blue dark:text-blue-dark">
-          {{ dr.avg }} ml/reg
-        </span>
-      </div>
-      <div class="h-1.5 overflow-hidden rounded-full bg-surface-alt dark:bg-surface-alt-dark">
+    <div class="mb-7">
+        <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Análisis</p>
+        <h1 class="text-2xl font-bold text-main dark:text-main-dark">Estadísticas</h1>
+        @if (recoveryDay()) {
         <div
-          [style.width.%]="dr.pct"
-          class="h-full rounded-full bg-gradient-to-r from-blue/60 to-blue transition-all duration-700 ease-out dark:from-blue-dark/60 dark:to-blue-dark"
-        ></div>
-      </div>
-    </div>
-    }
-  </div>
-  }
-
-  <!-- ── Comparación últimas limpiezas ──────────────────────────────── -->
-  <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Comparación últimas limpiezas</p>
-  <div class="anim-fade-up rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
-    @for (c of comparisons(); track c.label) {
-    <div class="flex items-center justify-between border-b border-border/60 py-2.5 last:border-0 dark:border-border-dark/60">
-      <span class="text-[13px] text-muted dark:text-muted-dark">{{ c.label }}</span>
-      <div class="flex items-center gap-2">
-        <span class="text-sm font-semibold text-main dark:text-main-dark">{{ c.value }} ml</span>
-        @if (c.diff !== null) {
-        <span [class]="comparisonBadgeClasses(c.diff)">
-          <i [class]="'pi text-[9px] ' + (c.diff < 0 ? 'pi-arrow-down' : c.diff > 0 ? 'pi-arrow-up' : 'pi-minus')"></i>
-          {{ c.diff !== 0 ? (c.diff > 0 ? '+' : '') + c.diff : '=' }}
-        </span>
+            class="mt-2.5 inline-flex items-center gap-2 rounded-full bg-blue-soft px-3.5 py-1.5 dark:bg-blue-soft-dark">
+            <i class="pi pi-heart text-[13px] text-blue dark:text-blue-dark"></i>
+            <span class="text-[13px] font-semibold text-blue dark:text-blue-dark">
+                Día {{ recoveryDay() }} de recuperación
+            </span>
+        </div>
         }
-      </div>
+    </div>
+
+    @if (logs().length
+    < 2) { <app-empty icon="pi-chart-bar" title="Pocos datos aún"
+        description="Necesitas al menos 2 registros para ver tendencias." />
+    } @else {
+    <!-- resto igual -->
+
+    <!-- ── Resumen global ──────────────────────────────────────────────── -->
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Resumen</p>
+    <div class="mb-6 grid grid-cols-2 gap-2.5">
+        <div
+            class="anim-fade-up delay-1 rounded-xl border border-border bg-surface-white p-4 text-center dark:border-border-dark dark:bg-surface-white-dark">
+            <div class="text-2xl font-bold text-blue dark:text-blue-dark">{{ totalLogs() }}</div>
+            <div class="mt-1 text-xs text-muted dark:text-muted-dark">Limpiezas</div>
+        </div>
+        <div
+            class="anim-fade-up delay-2 rounded-xl border border-border bg-surface-white p-4 text-center dark:border-border-dark dark:bg-surface-white-dark">
+            <div class="text-2xl font-bold text-blue dark:text-blue-dark">{{ totalMl() }}</div>
+            <div class="mt-1 text-xs text-muted dark:text-muted-dark">ml totales</div>
+        </div>
+        <div
+            class="anim-fade-up delay-3 rounded-xl border border-border bg-surface-white p-4 text-center dark:border-border-dark dark:bg-surface-white-dark">
+            <div class="text-2xl font-bold text-blue dark:text-blue-dark">{{ avgMl() }}</div>
+            <div class="mt-1 text-xs text-muted dark:text-muted-dark">ml promedio</div>
+        </div>
+        <div
+            class="anim-fade-up delay-4 rounded-xl border border-border bg-surface-white p-4 text-center dark:border-border-dark dark:bg-surface-white-dark">
+            <div [class]="'text-xl font-bold ' + trendColorClass()">
+                <i [class]="'pi ' + trendIcon()"></i>
+            </div>
+            <div class="mt-1 text-xs text-muted dark:text-muted-dark">Tendencia</div>
+            <div [class]="'mt-0.5 text-[11px] font-semibold ' + trendColorClass()">
+                {{ trendLabel() }}
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Línea de tendencia ──────────────────────────────────────────── -->
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">
+        Fluido por día (últimos {{ dailyTotals().length }} días)
+    </p>
+    <div
+        class="anim-fade-up delay-3 mb-6 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+
+        <app-charts [data]="trendChartData()" />
+
+        @if (dailyTotals().length >= 2) {
+        <div class="mt-2.5 flex justify-between border-t border-border/60 pt-2.5 dark:border-border-dark/60">
+            <span class="text-xs text-muted dark:text-muted-dark">
+                Max: <strong class="text-main dark:text-main-dark">{{ maxDay() }} ml</strong>
+            </span>
+            <span class="text-xs text-muted dark:text-muted-dark">
+                Prom: <strong class="text-main dark:text-main-dark">{{ avgMl() }} ml</strong>
+            </span>
+        </div>
+        }
+    </div>
+
+    <!-- ── Por drenaje ─────────────────────────────────────────────────── -->
+    @if (drainIds().length > 1) {
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Promedio por drenaje</p>
+    <div class="mb-6 flex flex-col gap-2.5">
+        @for (dr of drainAvgs(); track dr.id; let i = $index) {
+        <div
+            class="anim-fade-up delay-{{i+1}} rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+            <div class="mb-2 flex items-center justify-between">
+                <span class="text-sm font-semibold text-main dark:text-main-dark">
+                    <i class="pi pi-circle-fill mr-1.5 text-[8px] text-blue dark:text-blue-dark"></i>
+                    {{ dr.label }}
+                </span>
+                <span class="text-[15px] font-bold text-blue dark:text-blue-dark">
+                    {{ dr.avg }} ml/reg
+                </span>
+            </div>
+            <div class="h-1.5 overflow-hidden rounded-full bg-surface-alt dark:bg-surface-alt-dark">
+                <div [style.width.%]="dr.pct"
+                    class="h-full rounded-full bg-gradient-to-r from-blue/60 to-blue transition-all duration-700 ease-out dark:from-blue-dark/60 dark:to-blue-dark">
+                </div>
+            </div>
+        </div>
+        }
     </div>
     }
-  </div>
 
-  }
+    <!-- ── Comparación últimas limpiezas ──────────────────────────────── -->
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Comparación últimas
+        limpiezas</p>
+    <div
+        class="anim-fade-up rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+        @for (c of comparisons(); track c.label) {
+        <div
+            class="flex items-center justify-between border-b border-border/60 py-2.5 last:border-0 dark:border-border-dark/60">
+            <span class="text-[13px] text-muted dark:text-muted-dark">{{ c.label }}</span>
+            <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-main dark:text-main-dark">{{ c.value }} ml</span>
+                @if (c.diff !== null) {
+                <span [class]="comparisonBadgeClasses(c.diff)">
+                    <i
+                        [class]="'pi text-[9px] ' + (c.diff < 0 ? 'pi-arrow-down' : c.diff > 0 ? 'pi-arrow-up' : 'pi-minus')"></i>
+                    {{ c.diff !== 0 ? (c.diff > 0 ? '+' : '') + c.diff : '=' }}
+                </span>
+                }
+            </div>
+        </div>
+        }
+    </div>
+
+    }
 </div>
