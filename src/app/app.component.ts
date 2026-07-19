@@ -1,17 +1,14 @@
 import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { BottomNavComponent } from './components/bottom-nav/bottom-nav.component';
+import { PageFooterComponent } from './layout/page-footer/page-footer.component';
 import { NotificationService } from './core/services/notification.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, BottomNavComponent],
+  imports: [RouterOutlet, PageFooterComponent],
   changeDetection: ChangeDetectionStrategy.Eager,
-  template: `
-    <router-outlet />
-    <app-bottom-nav />
-  `
+  templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {
   private notifications = inject(NotificationService);
