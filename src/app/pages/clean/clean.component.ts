@@ -6,7 +6,11 @@ import { StorageService } from '../../core/services/storage.service';
 import { CleaningLog, DrainEntry, Symptoms, LIQUID_COLORS, LiquidColor, PainLevel, BruiseColor } from '../../core/models';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { EmptyComponent } from 'src/app/shared/empty/empty.component';
-import { PillSelectComponent, PillOption } from 'src/app/shared/pill-select/pill-select.component';
+import { DrainEntryCardComponent } from './drain-entry-card/drain-entry-card.component';
+import { SymptomsSectionComponent } from './symptoms-section/symptoms-section.component';
+import { CustomDateSectionComponent } from './custom-date-section/custom-date-section.component';
+import { VolumeAlertComponent } from './volume-alert/volume-alert.component';
+import { PillOption } from 'src/app/shared/pill-select/pill-select.component';
 
 const DEFAULT_SYMPTOMS = (): Symptoms => ({
   redness: false,
@@ -21,7 +25,6 @@ const DEFAULT_SYMPTOMS = (): Symptoms => ({
   feverTemp: undefined,
 });
 
-// Tipos extraídos directo de DrainEntry, para no duplicar el string literal a mano
 type ClotSize = NonNullable<DrainEntry['clotSize']>;
 type ClotStatus = NonNullable<DrainEntry['clotStatus']>;
 
@@ -38,7 +41,11 @@ const CLOT_STATUS_OPTIONS: PillOption<ClotStatus>[] = [
 @Component({
   selector: 'app-clean',
   standalone: true,
-  imports: [FormsModule, ButtonModule, EmptyComponent, PillSelectComponent],
+  imports: [
+    FormsModule, ButtonModule, EmptyComponent,
+    DrainEntryCardComponent, SymptomsSectionComponent,
+    CustomDateSectionComponent, VolumeAlertComponent,
+  ],
   templateUrl: './clean.component.html'
 })
 export class CleanComponent implements OnInit {
@@ -49,7 +56,7 @@ export class CleanComponent implements OnInit {
   drains = signal(this.storage.getDrains());
   amounts = signal<Record<string, number>>({});
   entries = signal<Record<string, Partial<DrainEntry>>>({});
-  symptoms: Symptoms = DEFAULT_SYMPTOMS();
+  symptoms = signal<Symptoms>(DEFAULT_SYMPTOMS());
   bathed = false;
   bandageChanged = false;
   notes = '';
@@ -109,17 +116,13 @@ export class CleanComponent implements OnInit {
 
   getAmount(id: string): number { return this.amounts()[id] ?? 0; }
   setAmount(id: string, val: number): void {
-    this.amounts.update(a => ({ ...a, [id]: Math.max(0, Math.round(Number(val) || 0)) }));
+    this.amounts.update(a => ({ ...a, [id]: val }));
   }
-  increment(id: string): void { this.setAmount(id, this.getAmount(id) + 5); }
-  decrement(id: string): void { this.setAmount(id, this.getAmount(id) - 5); }
 
   getEntry(id: string): Partial<DrainEntry> { return this.entries()[id] ?? {}; }
   setEntryField(id: string, field: keyof DrainEntry, value: unknown): void {
     this.entries.update(e => ({ ...e, [id]: { ...e[id], [field]: value } }));
   }
-  getColor(id: string): LiquidColor | undefined { return this.getEntry(id).liquidColor; }
-  setColor(id: string, color: LiquidColor): void { this.setEntryField(id, 'liquidColor', color); }
 
   get resolvedTimestamp(): string {
     if (this.useCustomDate && this.customDatePart) {
@@ -150,7 +153,7 @@ export class CleanComponent implements OnInit {
       entries,
       bathed: this.bathed,
       bandageChanged: this.bandageChanged,
-      symptoms: { ...this.symptoms },
+      symptoms: { ...this.symptoms() },
       notes: this.notes.trim() || undefined,
     };
 
@@ -168,7 +171,7 @@ export class CleanComponent implements OnInit {
       });
       this.amounts.set(reset);
       this.entries.set(entryReset);
-      this.symptoms = DEFAULT_SYMPTOMS();
+      this.symptoms.set(DEFAULT_SYMPTOMS());
       this.bathed = false;
       this.bandageChanged = false;
       this.notes = '';

@@ -15,6 +15,7 @@ export const LIQUID_COLORS: { value: LiquidColor; label: string; hex: string }[]
   { value: 'claro',          label: 'Claro / transparente', hex: '#e0f2fe' },
 ];
 
+export type LiquidColorOption = typeof LIQUID_COLORS[number];
 export type ClotSize    = 'pequeno' | 'grande';
 export type ClotStatus  = 'drenoSolo' | 'atascado';
 export type PainLevel   = 'ninguno' | 'suave' | 'moderado' | 'intenso';
