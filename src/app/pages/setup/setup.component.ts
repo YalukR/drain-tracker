@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, ChangeDetectionStrategy, OnInit, output } from '@angular/core';
+import { Component, signal, computed, inject, ChangeDetectionStrategy, OnInit, output, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { StorageService } from '../../core/services/storage.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
@@ -20,13 +20,16 @@ export class SetupComponent implements OnInit {
   private storage = inject(StorageService);
   private notifications = inject(NotificationService);
 
+  // true cuando este componente vive dentro del flujo de onboarding: oculta el botón
+  // "Ir a registrar limpieza" (redundante con el "Continuar" del onboarding) y pasa
+  // el mismo flag a general-settings para que también oculte su botón de guardar.
+  embedded = input(false);
+
   drains = signal<Drain[]>([]);
   settings = signal<AppSettings>({});
   loading = signal(true);
   today = new Date().toISOString().split('T')[0];
 
-  // Emite cada vez que la lista de drenajes cambia (alta o baja).
-  // El flujo de onboarding lo usa para saber cuándo el usuario ya configuró al menos 1 drenaje.
   drainsChanged = output<Drain[]>();
 
   deleteTarget = signal<Drain | null>(null);

@@ -14,6 +14,11 @@ export class GeneralSettingsComponent implements OnInit {
   today = input.required<string>();
   save = output<AppSettings>();
 
+  // true cuando este componente vive dentro del flujo de onboarding: oculta el botón
+  // "Guardar configuración" y guarda automáticamente al salir de cada campo, para no
+  // competir con el botón "Continuar" del onboarding.
+  embedded = input(false);
+
   saved = signal(false);
 
   // Copia local editable: los `input()` de signals son de solo lectura,
@@ -35,6 +40,14 @@ export class GeneralSettingsComponent implements OnInit {
     this.save.emit(clean);
     this.saved.set(true);
     setTimeout(() => this.saved.set(false), 2500);
+  }
+
+  // Llamado en (change) de cada campo cuando embedded() es true: guarda sin
+  // necesidad de un botón explícito, ya que en onboarding no queremos ese paso extra.
+  onFieldCommit(): void {
+    if (this.embedded()) {
+      this.submit();
+    }
   }
 
   clearSurgeryDate(): void {

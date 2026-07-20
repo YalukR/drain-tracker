@@ -6,7 +6,7 @@
             <app-welcome (continueClicked)="goToSetup()" />
             }
             @case ('setup') {
-            <app-setup (drainsChanged)="onDrainsChanged($event)" />
+            <app-setup [embedded]="true" (drainsChanged)="onDrainsChanged($event)" />
             }
         }
     </div>
