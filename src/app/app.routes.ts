@@ -26,5 +26,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent),
     data: { icon: 'pi-cog', label: 'Configuraciones' },
   },
+  {
+    path: 'about',
+    loadComponent: () => import('./pages/about/about.component').then(m => m.AboutComponent),
+    data: { icon: 'pi-share-alt', label: 'Share' },
+  },
   { path: '**', redirectTo: '' },
 ];
