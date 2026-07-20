@@ -5,10 +5,8 @@
 } @else if (onboardingComplete() === false) {
 <app-onboarding (completed)="onOnboardingCompleted()" />
 } @else {
-<div class="min-h-screen bg-surface-alt pb-20 pt-[env(safe-area-inset-top)] dark:bg-surface-white-dark">
+<div class="min-h-screen bg-surface-alt pb-[calc(5rem+env(safe-area-inset-bottom))] pt-[env(safe-area-inset-top)] dark:bg-surface-white-dark">
     <router-outlet />
-    <div class="bm-2">
-        <app-page-footer></app-page-footer>
-    </div>
+    <app-page-footer></app-page-footer>
 </div>
 }
