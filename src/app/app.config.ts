@@ -7,6 +7,7 @@ import { routes } from './app.routes';
 import { providePrimeNG } from 'primeng/config';
 import { definePreset } from '@primeng/themes';
 import Aura from '@primeng/themes/aura';
+import { MessageService } from 'primeng/api';
 
 registerLocaleData(localeEs);
 
@@ -84,5 +85,7 @@ export const appConfig: ApplicationConfig = {
         },
       },
     }),
+
+    MessageService,
   ],
 };

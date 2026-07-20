@@ -1,4 +1,5 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
+import { MessageService } from 'primeng/api';
 import { StorageService } from '../../core/services/storage.service';
 import { CleaningLog } from '../../core/models';
 import { WarningDialogComponent } from '../../shared/warn-dialog/warn-dialog.component';
@@ -14,6 +15,7 @@ import { LogCardComponent } from './log-card/log-card.component';
 })
 export class HistoryComponent implements OnInit {
   private storage = inject(StorageService);
+  private messageService = inject(MessageService);
 
   logs = signal<CleaningLog[]>([]);
   loading = signal(true);
@@ -36,8 +38,26 @@ export class HistoryComponent implements OnInit {
   async confirmDeleteAction(): Promise<void> {
     const id = this.deleteTargetId();
     if (!id) return;
-    await this.storage.deleteLog(id);
-    await this.refresh();
-    this.deleteTargetId.set(null);
+
+    try {
+      await this.storage.deleteLog(id);
+      await this.refresh();
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Registro eliminado',
+        detail: 'El registro se eliminó permanentemente.',
+        life: 3000,
+      });
+    } catch {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'No se pudo eliminar',
+        detail: 'Ocurrió un error al eliminar el registro. Intenta de nuevo.',
+        life: 4000,
+      });
+    } finally {
+      this.deleteTargetId.set(null);
+    }
   }
 }

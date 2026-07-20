@@ -1,6 +1,7 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 import { StorageService } from '../../core/services/storage.service';
 import { CleaningLog, Drain, DrainEntry, Symptoms, LIQUID_COLORS, LiquidColor, PainLevel, BruiseColor } from '../../core/models';
@@ -52,6 +53,7 @@ export class CleanComponent implements OnInit {
   router = inject(Router);
   private storage = inject(StorageService);
   private notifications = inject(NotificationService);
+  private messageService = inject(MessageService);
 
   drains = signal<Drain[]>([]);
   amounts = signal<Record<string, number>>({});
@@ -61,7 +63,6 @@ export class CleanComponent implements OnInit {
   bandageChanged = false;
   notes = '';
   saving = signal(false);
-  saved = signal(false);
   loading = signal(true);
 
   useCustomDate = false;
@@ -145,47 +146,62 @@ export class CleanComponent implements OnInit {
 
   async save(): Promise<void> {
     this.saving.set(true);
-    const entries: DrainEntry[] = this.drains().map(d => ({
-      drainId: d.id,
-      drainLabel: d.label,
-      amountMl: this.getAmount(d.id),
-      liquidColor: this.getEntry(d.id).liquidColor,
-      hasClot: this.getEntry(d.id).hasClot ?? false,
-      clotSize: this.getEntry(d.id).clotSize,
-      clotStatus: this.getEntry(d.id).clotStatus,
-      leakingOutside: this.getEntry(d.id).leakingOutside ?? false,
-    }));
 
-    const log: CleaningLog = {
-      id: crypto.randomUUID(),
-      timestamp: this.resolvedTimestamp,
-      entries,
-      bathed: this.bathed,
-      bandageChanged: this.bandageChanged,
-      symptoms: { ...this.symptoms() },
-      notes: this.notes.trim() || undefined,
-    };
+    try {
+      const entries: DrainEntry[] = this.drains().map(d => ({
+        drainId: d.id,
+        drainLabel: d.label,
+        amountMl: this.getAmount(d.id),
+        liquidColor: this.getEntry(d.id).liquidColor,
+        hasClot: this.getEntry(d.id).hasClot ?? false,
+        clotSize: this.getEntry(d.id).clotSize,
+        clotStatus: this.getEntry(d.id).clotStatus,
+        leakingOutside: this.getEntry(d.id).leakingOutside ?? false,
+      }));
 
-    await this.storage.addLog(log);
-    await this.notifications.reschedule();
+      const log: CleaningLog = {
+        id: crypto.randomUUID(),
+        timestamp: this.resolvedTimestamp,
+        entries,
+        bathed: this.bathed,
+        bandageChanged: this.bandageChanged,
+        symptoms: { ...this.symptoms() },
+        notes: this.notes.trim() || undefined,
+      };
 
-    this.saving.set(false);
-    this.saved.set(true);
+      await this.storage.addLog(log);
+      await this.notifications.reschedule();
 
-    const reset: Record<string, number> = {};
-    const entryReset: Record<string, Partial<DrainEntry>> = {};
-    this.drains().forEach(d => {
-      reset[d.id] = 0;
-      entryReset[d.id] = { hasClot: false, leakingOutside: false };
-    });
-    this.amounts.set(reset);
-    this.entries.set(entryReset);
-    this.symptoms.set(DEFAULT_SYMPTOMS());
-    this.bathed = false;
-    this.bandageChanged = false;
-    this.notes = '';
-    this.customDatePart = '';
-    this.customTimePart = '';
-    setTimeout(() => this.saved.set(false), 3000);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Registro guardado',
+        detail: 'La limpieza se registró correctamente.',
+        life: 3000,
+      });
+
+      const reset: Record<string, number> = {};
+      const entryReset: Record<string, Partial<DrainEntry>> = {};
+      this.drains().forEach(d => {
+        reset[d.id] = 0;
+        entryReset[d.id] = { hasClot: false, leakingOutside: false };
+      });
+      this.amounts.set(reset);
+      this.entries.set(entryReset);
+      this.symptoms.set(DEFAULT_SYMPTOMS());
+      this.bathed = false;
+      this.bandageChanged = false;
+      this.notes = '';
+      this.customDatePart = '';
+      this.customTimePart = '';
+    } catch (err) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'No se pudo guardar',
+        detail: 'Ocurrió un error al registrar la limpieza. Intenta de nuevo.',
+        life: 4000,
+      });
+    } finally {
+      this.saving.set(false);
+    }
   }
 }

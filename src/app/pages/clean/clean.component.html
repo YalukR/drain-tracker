@@ -1,92 +1,82 @@
 <div class="page anim-fade-in">
 
-    <div class="mb-7">
-        <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Nueva limpieza</p>
-        <h1 class="text-2xl font-bold text-main dark:text-main-dark">Registrar vaciado</h1>
-        <p class="mt-1.5 text-sm text-muted dark:text-muted-dark">
-            {{ nowStr() }}
-        </p>
-    </div>
+  <div class="mb-7">
+    <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Nueva limpieza</p>
+    <h1 class="text-2xl font-bold text-main dark:text-main-dark">Registrar vaciado</h1>
+    <p class="mt-1.5 text-sm text-muted dark:text-muted-dark">
+      {{ nowStr() }}
+    </p>
+  </div>
 
-    @if (drains().length === 0) {
-    <app-empty icon="pi-exclamation-circle" title="Sin drenajes configurados"
-        description="Primero agrega tus drenajes en la pantalla de inicio." actionLabel="Registrar uno"
-        actionIcon="pi-plus" (action)="router.navigate(['/settings'])" />
-    } @else {
+  @if (drains().length === 0) {
+  <app-empty icon="pi-exclamation-circle" title="Sin drenajes configurados"
+    description="Primero agrega tus drenajes en la pantalla de inicio." actionLabel="Registrar uno"
+    actionIcon="pi-plus" (action)="router.navigate(['/settings'])" />
+  } @else {
 
-    <!-- ── Por drenaje ─────────────────────────────────────────────── -->
-    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Cantidad por drenaje</p>
-    <div class="mb-6 flex flex-col gap-3">
-        @for (d of drains(); track d.id; let i = $index) {
-        <div class="anim-fade-up delay-{{i+1}}">
-            <app-drain-entry-card
-                [drainLabel]="d.label"
-                [amount]="getAmount(d.id)"
-                [entry]="getEntry(d.id)"
-                [liquidColors]="liquidColors"
-                [clotSizeOptions]="clotSizeOptions"
-                [clotStatusOptions]="clotStatusOptions"
-                (amountChange)="setAmount(d.id, $event)"
-                (entryFieldChange)="setEntryField(d.id, $event.field, $event.value)" />
-        </div>
-        }
-    </div>
-
-    <!-- ── Síntomas ────────────────────────────────────────────────── -->
-    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Síntomas</p>
-    <div class="anim-fade-up mb-6">
-        <app-symptoms-section [(symptoms)]="symptoms" [painOptions]="painOptions" [bruiseOptions]="bruiseOptions" />
-    </div>
-
-    <!-- ── Actividades ─────────────────────────────────────────────── -->
-    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Actividades</p>
-    <div
-        class="anim-fade-up mb-6 flex flex-col gap-3.5 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
-        <label class="flex items-center gap-2">
-            <input type="checkbox" [(ngModel)]="bathed" class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
-            <span class="text-sm text-main dark:text-main-dark">Se bañó / duchó</span>
-        </label>
-        <label class="flex items-center gap-2">
-            <input type="checkbox" [(ngModel)]="bandageChanged"
-                class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
-            <span class="text-sm text-main dark:text-main-dark">Se cambió el vendaje</span>
-        </label>
-    </div>
-
-    <!-- ── Notas ───────────────────────────────────────────────────── -->
-    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Notas adicionales
-        (opcional)</p>
-    <div class="anim-fade-up mb-6">
-        <textarea [(ngModel)]="notes" rows="3" placeholder="Cualquier observación adicional..."
-            class="w-full resize-none rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark"></textarea>
-    </div>
-
-    <!-- ── Fecha manual ───────────────────────────────────────────────── -->
-    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Fecha del registro</p>
-    <div class="anim-fade-up mb-6">
-        <app-custom-date-section
-            [(useCustomDate)]="useCustomDate"
-            [(datePart)]="customDatePart"
-            [(timePart)]="customTimePart"
-            [maxDate]="today" />
-    </div>
-
-    <!-- ── Alerta de volumen ──────────────────────────────────────────────── -->
-    @if (thresholdExceeded()) {
-    <div class="anim-scale-in mb-6">
-        <app-volume-alert [totalMl]="totalMl()" [thresholdMl]="alertThresholdMl()!" />
+  <!-- ── Por drenaje ─────────────────────────────────────────────── -->
+  <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Cantidad por drenaje</p>
+  <div class="mb-6 flex flex-col gap-3">
+    @for (d of drains(); track d.id; let i = $index) {
+    <div class="anim-fade-up delay-{{i+1}}">
+      <app-drain-entry-card
+        [drainLabel]="d.label"
+        [amount]="getAmount(d.id)"
+        [entry]="getEntry(d.id)"
+        [liquidColors]="liquidColors"
+        [clotSizeOptions]="clotSizeOptions"
+        [clotStatusOptions]="clotStatusOptions"
+        (amountChange)="setAmount(d.id, $event)"
+        (entryFieldChange)="setEntryField(d.id, $event.field, $event.value)" />
     </div>
     }
+  </div>
 
-    <!-- ── Guardar ─────────────────────────────────────────────────── -->
-    <p-button styleClass="w-full" [label]="saving() ? 'Guardando...' : 'Guardar registro'"
-        [icon]="saving() ? 'pi pi-spin pi-spinner' : 'pi pi-check-circle'" [disabled]="saving()" (onClick)="save()" />
+  <!-- ── Síntomas ────────────────────────────────────────────────── -->
+  <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Síntomas</p>
+  <div class="anim-fade-up mb-6">
+    <app-symptoms-section [(symptoms)]="symptoms" [painOptions]="painOptions" [bruiseOptions]="bruiseOptions" />
+  </div>
 
-    @if (saved()) {
-    <div
-        class="anim-scale-in mt-4 flex items-center justify-center gap-1.5 text-sm font-semibold text-green dark:text-green-dark">
-        <i class="pi pi-check"></i> Registro guardado correctamente
-    </div>
-    }
-    }
+  <!-- ── Actividades ─────────────────────────────────────────────── -->
+  <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Actividades</p>
+  <div class="anim-fade-up mb-6 flex flex-col gap-3.5 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+    <label class="flex items-center gap-2">
+      <input type="checkbox" [(ngModel)]="bathed" class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+      <span class="text-sm text-main dark:text-main-dark">Se bañó / duchó</span>
+    </label>
+    <label class="flex items-center gap-2">
+      <input type="checkbox" [(ngModel)]="bandageChanged" class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+      <span class="text-sm text-main dark:text-main-dark">Se cambió el vendaje</span>
+    </label>
+  </div>
+
+  <!-- ── Notas ───────────────────────────────────────────────────── -->
+  <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Notas adicionales (opcional)</p>
+  <div class="anim-fade-up mb-6">
+    <textarea [(ngModel)]="notes" rows="3" placeholder="Cualquier observación adicional..."
+      class="w-full resize-none rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark"></textarea>
+  </div>
+
+  <!-- ── Fecha manual ───────────────────────────────────────────────── -->
+  <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Fecha del registro</p>
+  <div class="anim-fade-up mb-6">
+    <app-custom-date-section
+      [(useCustomDate)]="useCustomDate"
+      [(datePart)]="customDatePart"
+      [(timePart)]="customTimePart"
+      [maxDate]="today" />
+  </div>
+
+  <!-- ── Alerta de volumen ──────────────────────────────────────────────── -->
+  @if (thresholdExceeded()) {
+  <div class="anim-scale-in mb-6">
+    <app-volume-alert [totalMl]="totalMl()" [thresholdMl]="alertThresholdMl()!" />
+  </div>
+  }
+
+  <!-- ── Guardar ─────────────────────────────────────────────────── -->
+  <p-button styleClass="w-full" [label]="saving() ? 'Guardando...' : 'Guardar registro'"
+    [icon]="saving() ? 'pi pi-spin pi-spinner' : 'pi pi-check-circle'" [disabled]="saving()" (onClick)="save()" />
+  }
 </div>

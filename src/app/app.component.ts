@@ -4,11 +4,12 @@ import { PageFooterComponent } from './layout/page-footer/page-footer.component'
 import { NotificationService } from './core/services/notification.service';
 import { StorageService } from './core/services/storage.service';
 import { OnboardingComponent } from './pages/onboarding/onboarding.component';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, PageFooterComponent, OnboardingComponent],
+  imports: [RouterOutlet, PageFooterComponent, OnboardingComponent, ToastModule],
   templateUrl: './app.component.html'
 })
 export class AppComponent implements OnInit {

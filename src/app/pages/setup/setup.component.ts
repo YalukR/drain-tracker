@@ -1,5 +1,6 @@
 import { Component, signal, computed, inject, ChangeDetectionStrategy, OnInit, output, input } from '@angular/core';
 import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { StorageService } from '../../core/services/storage.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { Drain, AppSettings } from '../../core/models';
@@ -19,10 +20,8 @@ export class SetupComponent implements OnInit {
   router = inject(Router);
   private storage = inject(StorageService);
   private notifications = inject(NotificationService);
+  private messageService = inject(MessageService);
 
-  // true cuando este componente vive dentro del flujo de onboarding: oculta el botón
-  // "Ir a registrar limpieza" (redundante con el "Continuar" del onboarding) y pasa
-  // el mismo flag a general-settings para que también oculte su botón de guardar.
   embedded = input(false);
 
   drains = signal<Drain[]>([]);
@@ -38,8 +37,6 @@ export class SetupComponent implements OnInit {
     `Se eliminará "${this.deleteTarget()?.label ?? ''}" y todos sus registros asociados. Esta acción no se puede deshacer.`
   );
 
-  // Controla si se ve el botón "Añadir drenaje" o el form completo.
-  // En onboarding (embedded=true) arranca abierto: es el único propósito de esa pantalla.
   showAddForm = signal(this.embedded());
   showGeneralSettings = signal(this.embedded());
 
@@ -54,14 +51,30 @@ export class SetupComponent implements OnInit {
   }
 
   async addDrain(payload: NewDrainPayload): Promise<void> {
-    const drain: Drain = { id: crypto.randomUUID(), ...payload };
-    const updated = [...this.drains(), drain];
-    this.drains.set(updated);
-    await this.storage.saveDrains(updated);
-    this.drainsChanged.emit(updated);
+    try {
+      const drain: Drain = { id: crypto.randomUUID(), ...payload };
+      const updated = [...this.drains(), drain];
+      this.drains.set(updated);
+      await this.storage.saveDrains(updated);
+      this.drainsChanged.emit(updated);
 
-    if (!this.embedded()) {
-      this.showAddForm.set(false); // colapsa el form tras agregar, fuera de onboarding
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Drenaje agregado',
+        detail: `"${payload.label}" se agregó correctamente.`,
+        life: 3000,
+      });
+
+      if (!this.embedded()) {
+        this.showAddForm.set(false);
+      }
+    } catch {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'No se pudo agregar',
+        detail: 'Ocurrió un error al guardar el drenaje. Intenta de nuevo.',
+        life: 4000,
+      });
     }
   }
 
@@ -71,16 +84,50 @@ export class SetupComponent implements OnInit {
   async executeDelete(): Promise<void> {
     const target = this.deleteTarget();
     if (!target) return;
-    const updated = this.drains().filter(d => d.id !== target.id);
-    this.drains.set(updated);
-    await this.storage.saveDrains(updated);
-    this.drainsChanged.emit(updated);
-    this.deleteTarget.set(null);
+
+    try {
+      const updated = this.drains().filter(d => d.id !== target.id);
+      this.drains.set(updated);
+      await this.storage.saveDrains(updated);
+      this.drainsChanged.emit(updated);
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Drenaje eliminado',
+        detail: `"${target.label}" y sus registros fueron eliminados.`,
+        life: 3000,
+      });
+    } catch {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'No se pudo eliminar',
+        detail: 'Ocurrió un error al eliminar el drenaje. Intenta de nuevo.',
+        life: 4000,
+      });
+    } finally {
+      this.deleteTarget.set(null);
+    }
   }
 
   async saveSettings(settings: AppSettings): Promise<void> {
-    this.settings.set(settings);
-    await this.storage.saveSettings(settings);
-    await this.notifications.schedule();
+    try {
+      this.settings.set(settings);
+      await this.storage.saveSettings(settings);
+      await this.notifications.schedule();
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Configuración guardada',
+        detail: 'Tus preferencias se actualizaron correctamente.',
+        life: 3000,
+      });
+    } catch {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'No se pudo guardar',
+        detail: 'Ocurrió un error al guardar la configuración.',
+        life: 4000,
+      });
+    }
   }
 }
