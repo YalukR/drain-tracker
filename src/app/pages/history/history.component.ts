@@ -16,19 +16,28 @@ export class HistoryComponent implements OnInit {
   private storage = inject(StorageService);
 
   logs = signal<CleaningLog[]>([]);
+  loading = signal(true);
   deleteTargetId = signal<string | null>(null);
   deleteDialogVisible = computed(() => this.deleteTargetId() !== null);
 
-  ngOnInit(): void { this.logs.set(this.storage.getLogs()); }
+  async ngOnInit(): Promise<void> {
+    await this.refresh();
+  }
+
+  private async refresh(): Promise<void> {
+    this.loading.set(true);
+    this.logs.set(await this.storage.getLogs());
+    this.loading.set(false);
+  }
 
   confirmDelete(id: string): void { this.deleteTargetId.set(id); }
   cancelDelete(): void { this.deleteTargetId.set(null); }
 
-  confirmDeleteAction(): void {
+  async confirmDeleteAction(): Promise<void> {
     const id = this.deleteTargetId();
     if (!id) return;
-    this.storage.deleteLog(id);
-    this.logs.set(this.storage.getLogs());
+    await this.storage.deleteLog(id);
+    await this.refresh();
     this.deleteTargetId.set(null);
   }
 }

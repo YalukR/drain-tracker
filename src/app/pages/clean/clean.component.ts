@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { StorageService } from '../../core/services/storage.service';
-import { CleaningLog, DrainEntry, Symptoms, LIQUID_COLORS, LiquidColor, PainLevel, BruiseColor } from '../../core/models';
+import { CleaningLog, Drain, DrainEntry, Symptoms, LIQUID_COLORS, LiquidColor, PainLevel, BruiseColor } from '../../core/models';
 import { NotificationService } from 'src/app/core/services/notification.service';
 import { EmptyComponent } from 'src/app/shared/empty/empty.component';
 import { DrainEntryCardComponent } from './drain-entry-card/drain-entry-card.component';
@@ -53,7 +53,7 @@ export class CleanComponent implements OnInit {
   private storage = inject(StorageService);
   private notifications = inject(NotificationService);
 
-  drains = signal(this.storage.getDrains());
+  drains = signal<Drain[]>([]);
   amounts = signal<Record<string, number>>({});
   entries = signal<Record<string, Partial<DrainEntry>>>({});
   symptoms = signal<Symptoms>(DEFAULT_SYMPTOMS());
@@ -62,6 +62,7 @@ export class CleanComponent implements OnInit {
   notes = '';
   saving = signal(false);
   saved = signal(false);
+  loading = signal(true);
 
   useCustomDate = false;
   customDatePart = '';
@@ -102,16 +103,24 @@ export class CleanComponent implements OnInit {
     return threshold !== undefined && this.totalMl() > threshold;
   });
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    const [drains, settings] = await Promise.all([
+      this.storage.getDrains(),
+      this.storage.getSettings(),
+    ]);
+
+    this.drains.set(drains);
+    this.alertThresholdMl.set(settings.alertThresholdMl);
+
     const init: Record<string, number> = {};
     const entryInit: Record<string, Partial<DrainEntry>> = {};
-    this.drains().forEach(d => {
+    drains.forEach(d => {
       init[d.id] = 0;
       entryInit[d.id] = { hasClot: false, leakingOutside: false };
     });
     this.amounts.set(init);
     this.entries.set(entryInit);
-    this.alertThresholdMl.set(this.storage.getSettings().alertThresholdMl);
+    this.loading.set(false);
   }
 
   getAmount(id: string): number { return this.amounts()[id] ?? 0; }
@@ -134,7 +143,7 @@ export class CleanComponent implements OnInit {
     return new Date().toISOString();
   }
 
-  save(): void {
+  async save(): Promise<void> {
     this.saving.set(true);
     const entries: DrainEntry[] = this.drains().map(d => ({
       drainId: d.id,
@@ -157,27 +166,26 @@ export class CleanComponent implements OnInit {
       notes: this.notes.trim() || undefined,
     };
 
-    this.storage.addLog(log);
+    await this.storage.addLog(log);
+    await this.notifications.reschedule();
 
-    setTimeout(async () => {
-      await this.notifications.reschedule();
-      this.saving.set(false);
-      this.saved.set(true);
-      const reset: Record<string, number> = {};
-      const entryReset: Record<string, Partial<DrainEntry>> = {};
-      this.drains().forEach(d => {
-        reset[d.id] = 0;
-        entryReset[d.id] = { hasClot: false, leakingOutside: false };
-      });
-      this.amounts.set(reset);
-      this.entries.set(entryReset);
-      this.symptoms.set(DEFAULT_SYMPTOMS());
-      this.bathed = false;
-      this.bandageChanged = false;
-      this.notes = '';
-      this.customDatePart = '';
-      this.customTimePart = '';
-      setTimeout(() => this.saved.set(false), 3000);
-    }, 400);
+    this.saving.set(false);
+    this.saved.set(true);
+
+    const reset: Record<string, number> = {};
+    const entryReset: Record<string, Partial<DrainEntry>> = {};
+    this.drains().forEach(d => {
+      reset[d.id] = 0;
+      entryReset[d.id] = { hasClot: false, leakingOutside: false };
+    });
+    this.amounts.set(reset);
+    this.entries.set(entryReset);
+    this.symptoms.set(DEFAULT_SYMPTOMS());
+    this.bathed = false;
+    this.bandageChanged = false;
+    this.notes = '';
+    this.customDatePart = '';
+    this.customTimePart = '';
+    setTimeout(() => this.saved.set(false), 3000);
   }
 }

@@ -20,7 +20,8 @@ export class PdfGeneratorComponent {
   async downloadPdf(): Promise<void> {
     this.generating.set(true);
     try {
-      await this.pdfService.generate(this.logs(), this.storage.getDrains());
+      const drains = await this.storage.getDrains();
+      await this.pdfService.generate(this.logs(), drains);
     } finally {
       this.generating.set(false);
     }

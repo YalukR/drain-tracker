@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, computed, inject, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { StorageService } from '../../core/services/storage.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
@@ -15,13 +15,14 @@ import { WarningDialogComponent } from 'src/app/shared/warn-dialog/warn-dialog.c
   templateUrl: './setup.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SetupComponent {
+export class SetupComponent implements OnInit {
   router = inject(Router);
   private storage = inject(StorageService);
   private notifications = inject(NotificationService);
 
-  drains = signal<Drain[]>(this.storage.getDrains());
-  settings = signal<AppSettings>(this.storage.getSettings());
+  drains = signal<Drain[]>([]);
+  settings = signal<AppSettings>({});
+  loading = signal(true);
   today = new Date().toISOString().split('T')[0];
 
   deleteTarget = signal<Drain | null>(null);
@@ -30,28 +31,38 @@ export class SetupComponent {
     `Se eliminará "${this.deleteTarget()?.label ?? ''}" y todos sus registros asociados. Esta acción no se puede deshacer.`
   );
 
-  addDrain(payload: NewDrainPayload): void {
+  async ngOnInit(): Promise<void> {
+    const [drains, settings] = await Promise.all([
+      this.storage.getDrains(),
+      this.storage.getSettings(),
+    ]);
+    this.drains.set(drains);
+    this.settings.set(settings);
+    this.loading.set(false);
+  }
+
+  async addDrain(payload: NewDrainPayload): Promise<void> {
     const drain: Drain = { id: crypto.randomUUID(), ...payload };
     const updated = [...this.drains(), drain];
     this.drains.set(updated);
-    this.storage.saveDrains(updated);
+    await this.storage.saveDrains(updated);
   }
 
   confirmDelete(drain: Drain): void { this.deleteTarget.set(drain); }
   cancelDelete(): void { this.deleteTarget.set(null); }
 
-  executeDelete(): void {
+  async executeDelete(): Promise<void> {
     const target = this.deleteTarget();
     if (!target) return;
     const updated = this.drains().filter(d => d.id !== target.id);
     this.drains.set(updated);
-    this.storage.saveDrains(updated);
+    await this.storage.saveDrains(updated);
     this.deleteTarget.set(null);
   }
 
-  saveSettings(settings: AppSettings): void {
+  async saveSettings(settings: AppSettings): Promise<void> {
     this.settings.set(settings);
-    this.storage.saveSettings(settings);
-    this.notifications.schedule();
+    await this.storage.saveSettings(settings);
+    await this.notifications.schedule();
   }
 }

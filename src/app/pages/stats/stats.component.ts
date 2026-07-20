@@ -27,23 +27,28 @@ interface DayTotal {
 export class StatsComponent implements OnInit {
   private storage = inject(StorageService);
   logs = signal<CleaningLog[]>([]);
+  settings = signal<ReturnType<typeof this.storage.getSettings> extends Promise<infer T> ? T : never>({});
 
-  ngOnInit(): void {
-    this.logs.set(this.storage.getLogs());
-    this.settings = this.storage.getSettings();
+  async ngOnInit(): Promise<void> {
+    const [logs, settings] = await Promise.all([
+      this.storage.getLogs(),
+      this.storage.getSettings(),
+    ]);
+    this.logs.set(logs);
+    this.settings.set(settings);
   }
-
-  settings: ReturnType<StorageService['getSettings']> = {};
 
   // ── Día de recuperación ───────────────────────────────────────────────
   recoveryDay = computed(() => {
-    if (!this.settings.surgeryDate) return null;
-    const surgery = new Date(this.settings.surgeryDate + 'T12:00:00');
+    const surgeryDate = this.settings().surgeryDate;
+    if (!surgeryDate) return null;
+    const surgery = new Date(surgeryDate + 'T12:00:00');
     const today = new Date();
     const diff = Math.floor((today.getTime() - surgery.getTime()) / (1000 * 60 * 60 * 24));
     return diff >= 0 ? diff + 1 : null;
   });
 
+  
   // ── Resumen global ────────────────────────────────────────────────────
   totalLogs = computed(() => this.logs().length);
 

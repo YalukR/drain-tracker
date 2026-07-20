@@ -11,7 +11,7 @@ export class NotificationService {
   // Pedir permiso y programar el recordatorio según la configuración guardada.
   // Llamar esto al iniciar la app y cada vez que el usuario cambie el intervalo.
   async schedule(): Promise<void> {
-    const { reminderIntervalHours } = this.storage.getSettings();
+    const { reminderIntervalHours } = await this.storage.getSettings();
 
     // Cancelar siempre primero para evitar duplicados
     await this.cancel();
