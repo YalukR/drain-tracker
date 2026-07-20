@@ -38,6 +38,11 @@ export class SetupComponent implements OnInit {
     `Se eliminará "${this.deleteTarget()?.label ?? ''}" y todos sus registros asociados. Esta acción no se puede deshacer.`
   );
 
+  // Controla si se ve el botón "Añadir drenaje" o el form completo.
+  // En onboarding (embedded=true) arranca abierto: es el único propósito de esa pantalla.
+  showAddForm = signal(this.embedded());
+  showGeneralSettings = signal(this.embedded());
+
   async ngOnInit(): Promise<void> {
     const [drains, settings] = await Promise.all([
       this.storage.getDrains(),
@@ -54,6 +59,10 @@ export class SetupComponent implements OnInit {
     this.drains.set(updated);
     await this.storage.saveDrains(updated);
     this.drainsChanged.emit(updated);
+
+    if (!this.embedded()) {
+      this.showAddForm.set(false); // colapsa el form tras agregar, fuera de onboarding
+    }
   }
 
   confirmDelete(drain: Drain): void { this.deleteTarget.set(drain); }

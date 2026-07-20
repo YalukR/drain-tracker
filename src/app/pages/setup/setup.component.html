@@ -10,10 +10,26 @@
 
     <app-drain-lists [drains]="drains()" (delete)="confirmDelete($event)" />
 
+    @if (!showAddForm()) {
+    <button
+        class="mb-6 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-3 text-sm font-semibold text-blue transition-colors hover:bg-blue-soft dark:border-border-dark dark:text-blue-dark dark:hover:bg-blue-soft-dark"
+        (click)="showAddForm.set(true)">
+        <i class="pi pi-plus"></i> Añadir drenaje
+    </button>
+    } @else {
     <app-drain-form [today]="today" (add)="addDrain($event)" />
+    }
 
+    @if (!showGeneralSettings()) {
+    <button
+        class="mb-6 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-3 text-sm font-semibold text-blue transition-colors hover:bg-blue-soft dark:border-border-dark dark:text-blue-dark dark:hover:bg-blue-soft-dark"
+        (click)="showGeneralSettings.set(true)">
+        <i class="pi pi-cog"></i> Configuración general
+    </button>
+    } @else {
     <app-general-settings [settings]="settings()" [today]="today" [embedded]="embedded()"
         (save)="saveSettings($event)" />
+    }
 
     @if (!embedded() && drains().length > 0) {
     <div class="mt-2">
