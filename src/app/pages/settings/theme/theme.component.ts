@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeService, ThemeOption } from '../../../core/services/theme.service';
-import { PageHeaderComponent } from 'src/app/layout/page-header/page-header.component';
 
 @Component({
   selector: 'app-theme',
   standalone: true,
-  imports: [CommonModule, PageHeaderComponent],
+  imports: [CommonModule],
   templateUrl: './theme.component.html',
 })
 export class ThemeComponent implements OnInit {
