@@ -10,8 +10,8 @@
 
     @if (drains().length === 0) {
     <app-empty icon="pi-exclamation-circle" title="Sin drenajes configurados"
-        description="Primero agrega tus drenajes en la pantalla de inicio." actionLabel="Ir a inicio"
-        actionIcon="pi-home" (action)="router.navigate(['/'])" />
+        description="Primero agrega tus drenajes en la pantalla de inicio." actionLabel="Registrar uno"
+        actionIcon="pi-plus" (action)="router.navigate(['/settings'])" />
     } @else {
 
     <!-- ── Por drenaje ─────────────────────────────────────────────── -->
