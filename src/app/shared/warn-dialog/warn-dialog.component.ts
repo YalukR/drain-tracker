@@ -40,12 +40,14 @@ export class WarningDialogComponent {
   onAccept(): void {
     if (!this.isValid || this.loading) return;
     this.confirmed.emit();
+    this.reset();
     // No cerramos aquí: el padre decide cuándo cerrar (ej. tras un await exitoso).
   }
 
   onCancel(): void {
     this.cancelled.emit();
     this.close();
+    this.reset();
   }
 
   close(): void {
