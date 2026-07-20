@@ -4,7 +4,7 @@ import { CleaningLog, Drain, LIQUID_COLORS } from '../models';
 @Injectable({ providedIn: 'root' })
 export class PdfService {
 
-  async generate(logs: CleaningLog[], drains: Drain[]): Promise<void> {
+  async generate(logs: CleaningLog[], drains: Drain[]): Promise<{ blob: Blob; base64: string; fileName: string }> {
     const { default: jsPDF } = await import('jspdf');
     const { default: autoTable } = await import('jspdf-autotable');
 
@@ -84,7 +84,6 @@ export class PdfService {
         ]);
       });
 
-      // Fila de síntomas si existen
       const s = log.symptoms;
       if (s) {
         const symptomList: string[] = [];
@@ -150,6 +149,13 @@ export class PdfService {
       );
     }
 
-    doc.save(`drenajes_${new Date().toISOString().split('T')[0]}.pdf`);
+    const fileName = `drenajes_${new Date().toISOString().split('T')[0]}.pdf`;
+
+    // jsPDF puede darnos el resultado en distintos formatos; pedimos ambos
+    // porque el flujo web usa Blob y el flujo nativo (Filesystem) usa base64.
+    const blob = doc.output('blob');
+    const base64 = doc.output('datauristring').split(',')[1]; // quita el prefijo "data:application/pdf;base64,"
+
+    return { blob, base64, fileName };
   }
 }
