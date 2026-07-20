@@ -1,0 +1,13 @@
+<div
+    class="flex items-start gap-3 rounded-lg border border-danger bg-danger/10 p-4 dark:border-danger-dark dark:bg-danger-dark/10">
+    <i class="pi pi-exclamation-triangle mt-0.5 flex-shrink-0 text-lg text-danger dark:text-danger-dark"></i>
+    <div>
+        <p class="mb-1 text-sm font-bold text-danger dark:text-danger-dark">
+            Volumen elevado
+        </p>
+        <p class="text-[13px] leading-relaxed text-muted dark:text-muted-dark">
+            El total de esta limpieza ({{ totalMl() }} ml) supera el límite configurado
+            ({{ thresholdMl() }} ml). Considera contactar a tu médico.
+        </p>
+    </div>
+</div>

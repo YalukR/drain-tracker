@@ -1,0 +1,19 @@
+<div
+    class="rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+    @for (c of comparisons(); track c.label) {
+    <div
+        class="flex items-center justify-between border-b border-border/60 py-2.5 last:border-0 dark:border-border-dark/60">
+        <span class="text-[13px] text-muted dark:text-muted-dark">{{ c.label }}</span>
+        <div class="flex items-center gap-2">
+            <span class="text-sm font-semibold text-main dark:text-main-dark">{{ c.value }} ml</span>
+            @if (c.diff !== null) {
+            <span [class]="badgeClasses(c.diff)">
+                <i
+                    [class]="'pi text-[9px] ' + (c.diff < 0 ? 'pi-arrow-down' : c.diff > 0 ? 'pi-arrow-up' : 'pi-minus')"></i>
+                {{ c.diff !== 0 ? (c.diff > 0 ? '+' : '') + c.diff : '=' }}
+            </span>
+            }
+        </div>
+    </div>
+    }
+</div>

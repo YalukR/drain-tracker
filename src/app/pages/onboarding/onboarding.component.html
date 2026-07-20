@@ -1,0 +1,22 @@
+<div class="flex min-h-screen flex-col [padding-top:max(1.5rem,env(safe-area-inset-top))] [padding-left:max(1.5rem,env(safe-area-inset-left))] [padding-right:max(1.5rem,env(safe-area-inset-right))]">
+
+    <div class="flex-1">
+        @switch (step()) {
+            @case ('welcome') {
+            <app-welcome (continueClicked)="goToSetup()" />
+            }
+            @case ('setup') {
+            <app-setup [embedded]="true" (drainsChanged)="onDrainsChanged($event)" />
+            }
+        }
+    </div>
+
+    @if (step() === 'setup' && hasAtLeastOneDrain()) {
+    <div
+        class="anim-scale-in sticky bottom-0 bg-surface-alt pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-3 dark:bg-surface-white-dark">
+        <p-button styleClass="w-full" label="Continuar" icon="pi pi-arrow-right" iconPos="right"
+            (onClick)="finishOnboarding()" />
+    </div>
+    }
+
+</div>

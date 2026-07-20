@@ -1,0 +1,15 @@
+<nav
+    class="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-border bg-surface-white px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 dark:border-border-dark dark:bg-surface-white-dark">
+    @for (item of items; track item.path) {
+
+    <a class="flex flex-col items-center gap-1 rounded-lg px-3 py-1 text-muted transition-colors dark:text-muted-dark"
+        [class.text-blue]="active() === item.path" [class.dark:text-blue-dark]="active() === item.path"
+        [routerLink]="item.path" [attr.aria-label]="item.label">
+        <span class="flex h-8 w-8 items-center justify-center rounded-full transition-colors"
+            [class.bg-blue-soft]="active() === item.path" [class.dark:bg-blue-soft-dark]="active() === item.path">
+            <i [class]="'pi ' + item.icon + ' text-lg'"></i>
+        </span>
+        <span class="text-xs font-medium">{{ item.label }}</span>
+    </a>
+    }
+</nav>

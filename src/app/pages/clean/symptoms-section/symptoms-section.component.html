@@ -1,0 +1,71 @@
+<div
+    class="flex flex-col gap-3.5 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+
+    <label class="flex items-center gap-2">
+        <input type="checkbox" [ngModel]="symptoms().redness" (ngModelChange)="setField('redness', $event)"
+            class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+        <span class="text-sm text-main dark:text-main-dark">Enrojecimiento en la herida</span>
+    </label>
+
+    <label class="flex items-center gap-2">
+        <input type="checkbox" [ngModel]="symptoms().numbness" (ngModelChange)="setField('numbness', $event)"
+            class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+        <span class="text-sm text-main dark:text-main-dark">Adormecimiento</span>
+    </label>
+
+    <label class="flex items-center gap-2">
+        <input type="checkbox" [ngModel]="symptoms().suctionSensation"
+            (ngModelChange)="setField('suctionSensation', $event)"
+            class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+        <span class="text-sm text-main dark:text-main-dark">Sensación de vacío / succión</span>
+    </label>
+
+    <label class="flex items-center gap-2">
+        <input type="checkbox" [ngModel]="symptoms().tingling" (ngModelChange)="setField('tingling', $event)"
+            class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+        <span class="text-sm text-main dark:text-main-dark">Pinchazos</span>
+    </label>
+
+    <label class="flex items-center gap-2">
+        <input type="checkbox" [ngModel]="symptoms().itching" (ngModelChange)="setField('itching', $event)"
+            class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+        <span class="text-sm text-main dark:text-main-dark">Comezón</span>
+    </label>
+
+    <div>
+        <p class="mb-2 text-[13px] font-medium text-muted dark:text-muted-dark">Nivel de dolor</p>
+        <app-pill-select [options]="painOptions()" [value]="symptoms().painLevel" layout="grid-4"
+            (valueChange)="setField('painLevel', $event)" />
+    </div>
+
+    <label class="flex items-center gap-2">
+        <input type="checkbox" [ngModel]="symptoms().skinColorChange"
+            (ngModelChange)="setField('skinColorChange', $event)"
+            class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+        <span class="text-sm text-main dark:text-main-dark">Cambio de coloración en la piel</span>
+    </label>
+
+    @if (symptoms().skinColorChange) {
+    <div class="anim-scale-in rounded-lg bg-surface-alt p-3 dark:bg-surface-alt-dark">
+        <p class="mb-2 text-xs text-muted dark:text-muted-dark">Color del hematoma</p>
+        <app-pill-select [options]="bruiseOptions()" [value]="symptoms().bruiseColor" layout="wrap" shape="round"
+            (valueChange)="setField('bruiseColor', $event)" />
+    </div>
+    }
+
+    <label class="flex items-center gap-2">
+        <input type="checkbox" [ngModel]="symptoms().fever" (ngModelChange)="setField('fever', $event)"
+            class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+        <span class="text-sm text-main dark:text-main-dark">Fiebre</span>
+    </label>
+
+    @if (symptoms().fever) {
+    <div class="anim-scale-in">
+        <label class="mb-1.5 block text-sm font-medium text-main dark:text-main-dark">Temperatura (°C)</label>
+        <input type="number" [ngModel]="symptoms().feverTemp" (ngModelChange)="setField('feverTemp', $event)"
+            min="35" max="42" step="0.1" placeholder="ej: 38.5"
+            class="w-full rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
+    </div>
+    }
+
+</div>

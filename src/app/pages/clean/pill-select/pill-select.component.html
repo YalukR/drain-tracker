@@ -1,0 +1,15 @@
+<div class="flex gap-2" [class.grid]="layout() !== 'wrap'" [class.grid-cols-2]="layout() === 'grid-2'"
+    [class.grid-cols-3]="layout() === 'grid-3'" [class.grid-cols-4]="layout() === 'grid-4'"
+    [class.flex-wrap]="layout() === 'wrap'">
+    @for (opt of options(); track opt.value) {
+    <button type="button" (click)="select(opt)" [style.background-color]="backgroundColor(opt)"
+        [style.border-color]="borderColor(opt)" [class.bg-blue-soft]="isSelected(opt) && !opt.hex"
+        [class.dark:bg-blue-soft-dark]="isSelected(opt) && !opt.hex" [class.border-blue]="isSelected(opt) && !opt.hex"
+        [class.dark:border-blue-dark]="isSelected(opt) && !opt.hex" [class.rounded-lg]="shape() === 'square'"
+        [class.rounded-full]="shape() === 'round'" [class.px-1]="shape() === 'square' && layout() !== 'wrap'"
+        [class.px-3.5]="shape() === 'round'"
+        class="flex-1 border-[1.5px] border-border py-2 text-center text-xs font-medium text-main transition-all dark:border-border-dark dark:text-main-dark">
+        {{ opt.label }}
+    </button>
+    }
+</div>

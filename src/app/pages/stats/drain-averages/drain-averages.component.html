@@ -1,0 +1,21 @@
+<div class="flex flex-col gap-2.5">
+    @for (dr of drainAvgs(); track dr.id; let i = $index) {
+    <div
+        class="anim-fade-up delay-{{i+1}} rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+        <div class="mb-2 flex items-center justify-between">
+            <span class="text-sm font-semibold text-main dark:text-main-dark">
+                <i class="pi pi-circle-fill mr-1.5 text-[8px] text-blue dark:text-blue-dark"></i>
+                {{ dr.label }}
+            </span>
+            <span class="text-[15px] font-bold text-blue dark:text-blue-dark">
+                {{ dr.avg }} ml/reg
+            </span>
+        </div>
+        <div class="h-1.5 overflow-hidden rounded-full bg-surface-alt dark:bg-surface-alt-dark">
+            <div [style.width.%]="dr.pct"
+                class="h-full rounded-full bg-gradient-to-r from-blue/60 to-blue transition-all duration-700 ease-out dark:from-blue-dark/60 dark:to-blue-dark">
+            </div>
+        </div>
+    </div>
+    }
+</div>

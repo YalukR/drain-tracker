@@ -1,0 +1,24 @@
+<div
+    class="flex flex-col gap-3.5 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+    <label class="flex items-center gap-2">
+        <input type="checkbox" [ngModel]="useCustomDate()" (ngModelChange)="useCustomDate.set($event)"
+            class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+        <span class="text-sm text-main dark:text-main-dark">Registrar con fecha diferente</span>
+    </label>
+
+    @if (useCustomDate()) {
+    <div class="anim-scale-in flex flex-col gap-2.5">
+        <div>
+            <label class="mb-1.5 block text-sm font-medium text-main dark:text-main-dark">Fecha</label>
+            <input type="date" [ngModel]="datePart()" (ngModelChange)="datePart.set($event)" [max]="maxDate()"
+                class="w-full rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
+        </div>
+        <div>
+            <label class="mb-1.5 block text-sm font-medium text-main dark:text-main-dark">Hora (opcional)</label>
+            <input type="time" [ngModel]="timePart()" (ngModelChange)="timePart.set($event)"
+                placeholder="Si no se pone, se usa mediodía"
+                class="w-full rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
+        </div>
+    </div>
+    }
+</div>

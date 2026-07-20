@@ -1,0 +1,54 @@
+<div class="page anim-fade-in">
+
+    <div class="mb-7">
+        <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Análisis</p>
+        <h1 class="text-2xl font-bold text-main dark:text-main-dark">Estadísticas</h1>
+        @if (recoveryDay()) {
+        <div
+            class="mt-2.5 inline-flex items-center gap-2 rounded-full bg-blue-soft px-3.5 py-1.5 dark:bg-blue-soft-dark">
+            <i class="pi pi-heart text-[13px] text-blue dark:text-blue-dark"></i>
+            <span class="text-[13px] font-semibold text-blue dark:text-blue-dark">
+                Día {{ recoveryDay() }} de recuperación
+            </span>
+        </div>
+        }
+    </div>
+
+    @if (logs().length
+    < 2) { <app-empty icon="pi-chart-bar" title="Pocos datos aún"
+        description="Necesitas al menos 2 registros para ver tendencias." />
+    } @else {
+
+    <!-- ── Resumen global ──────────────────────────────────────────────── -->
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Resumen</p>
+    <div class="mb-6">
+        <app-summary-stats [totalLogs]="totalLogs()" [totalMl]="totalMl()" [avgMl]="avgMl()" [trendIcon]="trendIcon()"
+            [trendColorClass]="trendColorClass()" [trendLabel]="trendLabel()" />
+    </div>
+
+    <!-- ── Línea de tendencia ──────────────────────────────────────────── -->
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">
+        Fluido por día (últimos {{ dailyTotals().length }} días)
+    </p>
+    <div class="anim-fade-up delay-3 mb-6">
+        <app-trend-chart-card [data]="trendChartData()" [dayCount]="dailyTotals().length" [maxDay]="maxDay()"
+            [avgMl]="avgMl()" />
+    </div>
+
+    <!-- ── Por drenaje ─────────────────────────────────────────────────── -->
+    @if (drainIds().length > 1) {
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Promedio por drenaje</p>
+    <div class="mb-6">
+        <app-drain-averages [drainAvgs]="drainAvgs()" />
+    </div>
+    }
+
+    <!-- ── Comparación últimas limpiezas ──────────────────────────────── -->
+    <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Comparación últimas
+        limpiezas</p>
+    <div class="anim-fade-up">
+        <app-cleaning-comparison [comparisons]="comparisons()" />
+    </div>
+
+    }
+</div>

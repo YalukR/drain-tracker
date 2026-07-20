@@ -1,0 +1,19 @@
+<div class="anim-scale-in flex flex-col items-center gap-3 rounded-xl border border-border bg-surface-white p-8 text-center dark:border-border-dark dark:bg-surface-white-dark">
+  <div class="flex h-14 w-14 items-center justify-center rounded-full bg-surface-alt text-2xl text-muted dark:bg-surface-alt-dark dark:text-muted-dark">
+    <i [class]="'pi ' + icon()"></i>
+  </div>
+  <h3 class="text-lg font-bold text-main dark:text-main-dark">{{ title() }}</h3>
+  <p class="text-sm text-muted dark:text-muted-dark">{{ description() }}</p>
+
+  @if (actionLabel()) {
+  <button
+    class="mt-2 flex items-center justify-center gap-2 rounded-lg bg-blue px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-blue-dark dark:text-surface-white-dark"
+    (click)="action.emit()"
+  >
+    @if (actionIcon()) {
+    <i [class]="'pi ' + actionIcon()"></i>
+    }
+    {{ actionLabel() }}
+  </button>
+  }
+</div>

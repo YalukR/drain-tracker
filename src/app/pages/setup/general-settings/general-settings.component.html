@@ -1,0 +1,60 @@
+<p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Configuración general</p>
+<div
+    class="anim-fade-up mb-6 flex flex-col gap-5 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+
+    <div>
+        <label class="block text-sm font-medium text-main dark:text-main-dark">Fecha de cirugía</label>
+        <p class="mb-2 mt-0.5 text-xs text-muted dark:text-muted-dark">
+            Usada para mostrar el día de recuperación en estadísticas.
+        </p>
+        <div class="flex items-center gap-2">
+            <input type="date" [(ngModel)]="local.surgeryDate" [max]="today()" (change)="onFieldCommit()"
+                class="flex-1 rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
+            @if (local.surgeryDate) {
+            <button
+                class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface-alt dark:text-muted-dark dark:hover:bg-surface-alt-dark"
+                (click)="clearSurgeryDate()" aria-label="Borrar fecha">
+                <i class="pi pi-times"></i>
+            </button>
+            }
+        </div>
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-main dark:text-main-dark">Alerta de volumen (ml por
+            limpieza)</label>
+        <p class="mb-2 mt-0.5 text-xs text-muted dark:text-muted-dark">
+            Si el total de una limpieza supera este valor, se mostrará un aviso para contactar al médico.
+            Déjalo vacío para desactivar.
+        </p>
+        <input type="number" [(ngModel)]="local.alertThresholdMl" min="1" max="9999" placeholder="ej: 100"
+            (change)="onFieldCommit()"
+            class="w-full rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
+    </div>
+
+    <div>
+        <label class="block text-sm font-medium text-main dark:text-main-dark">Recordatorio de limpieza</label>
+        <p class="mb-2 mt-0.5 text-xs text-muted dark:text-muted-dark">
+            Recibirás una notificación todos los días a esta hora para recordarte limpiar.
+            Déjalo vacío para desactivar.
+        </p>
+        <input type="time" [(ngModel)]="local.reminderTime" (change)="onFieldCommit()"
+            class="w-full rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
+    </div>
+
+    @if (!embedded()) {
+    <button
+        class="flex items-center justify-center gap-2 rounded-lg bg-blue px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 dark:bg-blue-dark dark:text-surface-white-dark"
+        (click)="submit()">
+        <i class="pi pi-check"></i> Guardar configuración
+    </button>
+
+    @if (saved()) {
+    <div
+        class="anim-scale-in flex items-center justify-center gap-1.5 text-sm font-semibold text-green dark:text-green-dark">
+        <i class="pi pi-check-circle"></i> Configuración guardada
+    </div>
+    }
+    }
+
+</div>

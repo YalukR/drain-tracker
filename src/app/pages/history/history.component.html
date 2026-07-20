@@ -1,0 +1,30 @@
+<div class="page anim-fade-in">
+
+    <!-- Header -->
+    <div class="mb-7 flex items-start justify-between gap-3">
+        <div>
+            <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Registros</p>
+            <h1 class="text-2xl font-bold text-main dark:text-main-dark">Historial</h1>
+        </div>
+        @if (logs().length > 0) {
+        <app-pdf-generator [logs]="logs()" />
+        }
+    </div>
+
+    @if (logs().length === 0) {
+    <app-empty icon="pi-list" title="Sin registros aún" description="Los registros de tus limpiezas aparecerán aquí." />
+    } @else {
+    <div class="flex flex-col gap-3">
+        @for (log of logs(); track log.id; let i = $index) {
+        <div class="anim-fade-up delay-{{i < 8 ? i+1 : 8}}">
+            <app-log-card [log]="log" (deleteRequested)="confirmDelete($event)" />
+        </div>
+        }
+    </div>
+    }
+</div>
+
+<app-warning-dialog header="¿Eliminar registro?"
+    message="Esta acción no se puede deshacer. El registro se eliminará permanentemente." confirmWord="eliminar"
+    acceptLabel="Eliminar" rejectLabel="Cancelar" [visible]="deleteDialogVisible()"
+    (visibleChange)="!$event && cancelDelete()" (cancelled)="cancelDelete()" (confirmed)="confirmDeleteAction()" />

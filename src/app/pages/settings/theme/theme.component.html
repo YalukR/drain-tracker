@@ -1,0 +1,20 @@
+<section class="mb-8">
+    <div class="mb-7">
+        <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Temas</p>
+        <h1 class="text-2xl font-bold text-main dark:text-main-dark">Selector de Temas</h1>
+        <p class="mt-1.5 text-sm leading-relaxed text-muted dark:text-muted-dark">
+            Cambia el tema de la aplicación
+        </p>
+    </div>
+    <div class="inline-flex rounded-md border border-border dark:border-border-dark overflow-hidden w-full">
+        <button type="button"
+            class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium border-0 transition-colors"
+            *ngFor="let opt of themeOptions" [class.bg-blue]="currentTheme === opt.value"
+            [class.text-white]="currentTheme === opt.value"
+            [ngClass]="currentTheme !== opt.value ? 'bg-surface-white dark:bg-surface-white-dark text-muted dark:text-muted-dark hover:bg-surface-alt dark:hover:bg-surface-alt-dark' : ''"
+            (click)="setTheme(opt.value)">
+            <i class="pi" [ngClass]="opt.icon"></i>
+            {{ opt.label }}
+        </button>
+    </div>
+</section>

@@ -1,0 +1,38 @@
+<div class="page anim-fade-in">
+
+    <div class="mb-7">
+        <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Configuración</p>
+        <h1 class="text-2xl font-bold text-main dark:text-main-dark">Mis drenajes</h1>
+        <p class="mt-1.5 text-sm leading-relaxed text-muted dark:text-muted-dark">
+            Registra cada drenaje con su nombre y la fecha desde la que lo tienes.
+        </p>
+    </div>
+
+    <app-drain-lists [drains]="drains()" (delete)="confirmDelete($event)" />
+
+    @if (!showAddForm()) {
+    <button
+        class="mb-6 flex w-full items-center justify-center gap-2 rounded-lg border border-border py-3 text-sm font-semibold text-blue transition-colors hover:bg-blue-soft dark:border-border-dark dark:text-blue-dark dark:hover:bg-blue-soft-dark"
+        (click)="showAddForm.set(true)">
+        <i class="pi pi-plus"></i> Añadir drenaje
+    </button>
+    } @else {
+    <app-drain-form [today]="today" (add)="addDrain($event)" />
+    }
+
+    @if (!showGeneralSettings()) {
+    <button
+        class="mb-6 flex w-full items-center justify-center gap-2 rounded-lg border border-border py-3 text-sm font-semibold text-blue transition-colors hover:bg-blue-soft dark:border-border-dark dark:text-blue-dark dark:hover:bg-blue-soft-dark"
+        (click)="showGeneralSettings.set(true)">
+        <i class="pi pi-cog"></i> Configuración general
+    </button>
+    } @else {
+    <app-general-settings [settings]="settings()" [today]="today" [embedded]="embedded()"
+        (save)="saveSettings($event)" />
+    }
+
+</div>
+
+<app-warning-dialog header="¿Eliminar drenaje?" [message]="deleteMessage()" confirmWord="eliminar"
+    acceptLabel="Eliminar" rejectLabel="Cancelar" [visible]="deleteDialogVisible()"
+    (visibleChange)="!$event && cancelDelete()" (cancelled)="cancelDelete()" (confirmed)="executeDelete()" />

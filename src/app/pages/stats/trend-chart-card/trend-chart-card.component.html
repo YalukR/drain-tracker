@@ -1,0 +1,16 @@
+<div
+    class="rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+
+    <app-charts [data]="data()" />
+
+    @if (dayCount() >= 2) {
+    <div class="mt-2.5 flex justify-between border-t border-border/60 pt-2.5 dark:border-border-dark/60">
+        <span class="text-xs text-muted dark:text-muted-dark">
+            Max: <strong class="text-main dark:text-main-dark">{{ maxDay() }} ml</strong>
+        </span>
+        <span class="text-xs text-muted dark:text-muted-dark">
+            Prom: <strong class="text-main dark:text-main-dark">{{ avgMl() }} ml</strong>
+        </span>
+    </div>
+    }
+</div>

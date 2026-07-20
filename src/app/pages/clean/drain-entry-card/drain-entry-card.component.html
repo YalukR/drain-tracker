@@ -1,0 +1,74 @@
+<div
+    class="rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+
+    <div class="mb-3.5 flex items-center gap-2">
+        <i class="pi pi-circle-fill text-[8px] text-blue dark:text-blue-dark"></i>
+        <span class="text-[15px] font-semibold text-main dark:text-main-dark">{{ drainLabel() }}</span>
+    </div>
+
+    <div class="mb-3.5 flex items-center gap-2.5">
+        <button
+            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-border text-main transition-colors hover:bg-surface-alt disabled:cursor-not-allowed disabled:opacity-40 dark:border-border-dark dark:text-main-dark dark:hover:bg-surface-alt-dark"
+            (click)="decrement()" [disabled]="amount() <= 0">
+            <i class="pi pi-minus"></i>
+        </button>
+        <div class="relative flex-1">
+            <input type="number" [ngModel]="amount()" (ngModelChange)="onAmountInput($event)" min="0" max="999"
+                class="w-full rounded-lg border border-border bg-surface-white py-2.5 text-center text-xl font-bold text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
+            <span
+                class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted dark:text-muted-dark">ml</span>
+        </div>
+        <button
+            class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-border text-main transition-colors hover:bg-surface-alt dark:border-border-dark dark:text-main-dark dark:hover:bg-surface-alt-dark"
+            (click)="increment()">
+            <i class="pi pi-plus"></i>
+        </button>
+    </div>
+
+    <div class="mb-3">
+        <label class="mb-1.5 block text-sm font-medium text-main dark:text-main-dark">Color del líquido</label>
+        <div class="grid grid-cols-3 gap-1.5">
+            @for (c of liquidColors(); track c.value) {
+            <button (click)="setColor(c.value)"
+                [style.border-color]="entry().liquidColor === c.value ? c.hex : 'transparent'"
+                class="flex flex-col items-center gap-1.5 rounded-lg border-2 bg-surface-alt px-1.5 py-2 transition-all dark:bg-surface-alt-dark">
+                <span [style.background]="c.hex" class="block h-5 w-5 rounded-full border border-white/15"></span>
+                <span class="text-center text-[10px] leading-tight text-muted dark:text-muted-dark">
+                    {{ c.label }}
+                </span>
+            </button>
+            }
+        </div>
+    </div>
+
+    <div class="mb-2.5">
+        <label class="mb-2.5 flex items-center gap-2">
+            <input type="checkbox" [ngModel]="entry().hasClot" (ngModelChange)="setField('hasClot', $event)"
+                class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+            <span class="text-sm text-main dark:text-main-dark">Salió coágulo</span>
+        </label>
+
+        @if (entry().hasClot) {
+        <div
+            class="anim-scale-in mt-2 flex flex-col gap-2.5 rounded-lg bg-surface-alt p-3 dark:bg-surface-alt-dark">
+            <div>
+                <p class="mb-1.5 text-xs text-muted dark:text-muted-dark">Tamaño</p>
+                <app-pill-select [options]="clotSizeOptions()" [value]="entry().clotSize"
+                    (valueChange)="setField('clotSize', $event)" />
+            </div>
+            <div>
+                <p class="mb-1.5 text-xs text-muted dark:text-muted-dark">¿Qué pasó?</p>
+                <app-pill-select [options]="clotStatusOptions()" [value]="entry().clotStatus"
+                    (valueChange)="setField('clotStatus', $event)" />
+            </div>
+        </div>
+        }
+    </div>
+
+    <label class="flex items-center gap-2">
+        <input type="checkbox" [ngModel]="entry().leakingOutside" (ngModelChange)="setField('leakingOutside', $event)"
+            class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+        <span class="text-sm text-main dark:text-main-dark">Hubo fuga por el orificio de la piel</span>
+    </label>
+
+</div>

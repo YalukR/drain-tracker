@@ -1,0 +1,19 @@
+<p class="mb-2 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Agregar drenaje</p>
+<div
+    class="anim-scale-in mb-6 flex flex-col gap-4 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+    <div>
+        <label class="mb-1.5 block text-sm font-medium text-main dark:text-main-dark">Nombre o lado</label>
+        <input [(ngModel)]="newLabel" placeholder="ej: Izquierdo, Derecho, Centro" (keydown.enter)="submit()"
+            class="w-full rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
+    </div>
+    <div>
+        <label class="mb-1.5 block text-sm font-medium text-main dark:text-main-dark">Fecha de inicio</label>
+        <input type="date" [(ngModel)]="newDate" [max]="today()"
+            class="w-full rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
+    </div>
+    <button
+        class="flex items-center justify-center gap-2 rounded-lg bg-blue px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-blue-dark dark:text-surface-white-dark"
+        (click)="submit()" [disabled]="!newLabel.trim() || !newDate">
+        <i class="pi pi-plus"></i> Agregar drenaje
+    </button>
+</div>
