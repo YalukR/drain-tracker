@@ -30,9 +30,7 @@ export class GeneralSettingsComponent implements OnInit {
       alertThresholdMl: this.local.alertThresholdMl
         ? Number(this.local.alertThresholdMl)
         : undefined,
-      reminderIntervalHours: this.local.reminderIntervalHours
-        ? Number(this.local.reminderIntervalHours)
-        : undefined,
+      reminderTime: this.local.reminderTime || undefined,
     };
     this.save.emit(clean);
     this.saved.set(true);

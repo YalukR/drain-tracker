@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { LocalNotifications, ScheduleResult } from '@capacitor/local-notifications';
+import { LocalNotifications } from '@capacitor/local-notifications';
 import { StorageService } from './storage.service';
 
 const NOTIFICATION_ID = 1001; // ID fijo para poder cancelarlo y reemplazarlo fácilmente
@@ -8,21 +8,21 @@ const NOTIFICATION_ID = 1001; // ID fijo para poder cancelarlo y reemplazarlo f�
 export class NotificationService {
   private storage = inject(StorageService);
 
-  // Pedir permiso y programar el recordatorio según la configuración guardada.
-  // Llamar esto al iniciar la app y cada vez que el usuario cambie el intervalo.
+  // Pedir permiso y programar el recordatorio diario según la hora guardada.
+  // Llamar esto al iniciar la app y cada vez que el usuario cambie la hora.
   async schedule(): Promise<void> {
-    const { reminderIntervalHours } = await this.storage.getSettings();
+    const { reminderTime } = await this.storage.getSettings();
 
     // Cancelar siempre primero para evitar duplicados
     await this.cancel();
 
-    if (!reminderIntervalHours || reminderIntervalHours <= 0) return;
+    if (!reminderTime) return;
+
+    const [hour, minute] = reminderTime.split(':').map(Number);
+    if (Number.isNaN(hour) || Number.isNaN(minute)) return;
 
     const { display } = await LocalNotifications.requestPermissions();
     if (display !== 'granted') return;
-
-    const intervalMs = reminderIntervalHours * 60 * 60 * 1000;
-    const firstAt = new Date(Date.now() + intervalMs);
 
     await LocalNotifications.schedule({
       notifications: [
@@ -31,10 +31,8 @@ export class NotificationService {
           title: 'Recordatorio de limpieza',
           body: 'Es momento de vaciar y registrar tus drenajes.',
           schedule: {
-            at: firstAt,
-            repeats: true,
-            every: 'hour',
-            count: reminderIntervalHours, // repetir cada N horas
+            on: { hour, minute },
+            repeats: true, // se repite todos los días a esta hora
           },
           sound: undefined,
           actionTypeId: '',

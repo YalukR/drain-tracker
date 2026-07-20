@@ -1,9 +1,17 @@
 import { Injectable } from '@angular/core';
+import { Capacitor } from '@capacitor/core';
 import { CapacitorSQLite, SQLiteConnection, SQLiteDBConnection } from '@capacitor-community/sqlite';
 import { AppSettings, Drain, CleaningLog, DrainEntry, Symptoms } from '../models';
 
 const DB_NAME = 'drain_tracker';
 const LEGACY_LOCALSTORAGE_KEY = 'dt_state_v1';
+const DEV_FALLBACK_KEY = 'dt_dev_fallback_v1'; // solo para ng serve, nunca en la app real
+
+interface DevState {
+  drains: Drain[];
+  logs: CleaningLog[];
+  settings: AppSettings;
+}
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
@@ -11,12 +19,23 @@ export class StorageService {
   private db!: SQLiteDBConnection;
   private ready: Promise<void>;
 
+  // true = corriendo en `ng serve` en navegador; usamos el fallback en vez de SQLite real.
+  private readonly useDevFallback = !Capacitor.isNativePlatform();
+
   constructor() {
     this.ready = this.init();
   }
 
-  // ── Inicialización ───────────────────────────────────────────────────────
   private async init(): Promise<void> {
+    // En navegador (dev con `ng serve`) no inicializamos SQLite/jeep-sqlite en absoluto —
+    // hay un bug conocido de compatibilidad entre jeep-sqlite (Stencil) y el dev-server
+    // de Angular basado en Vite (https://github.com/ionic-team/stencil/issues/5457).
+    // Usamos un fallback simple de localStorage solo para desarrollo; en Android/iOS
+    // reales (Capacitor.isNativePlatform() === true) esto nunca se ejecuta.
+    if (this.useDevFallback) {
+      return;
+    }
+
     await this.sqlite.checkConnectionsConsistency();
     const isConn = (await this.sqlite.isConnection(DB_NAME, false)).result;
 
@@ -31,29 +50,29 @@ export class StorageService {
 
   private async createSchema(): Promise<void> {
     await this.db.execute(`
-      CREATE TABLE IF NOT EXISTS drains (
-        id TEXT PRIMARY KEY,
-        label TEXT NOT NULL,
-        startDate TEXT NOT NULL
-      );
+    CREATE TABLE IF NOT EXISTS drains (
+      id TEXT PRIMARY KEY,
+      label TEXT NOT NULL,
+      startDate TEXT NOT NULL
+    );
 
-      CREATE TABLE IF NOT EXISTS logs (
-        id TEXT PRIMARY KEY,
-        timestamp TEXT NOT NULL,
-        bathed INTEGER NOT NULL DEFAULT 0,
-        bandageChanged INTEGER NOT NULL DEFAULT 0,
-        notes TEXT,
-        symptoms TEXT NOT NULL,
-        entries TEXT NOT NULL
-      );
+    CREATE TABLE IF NOT EXISTS logs (
+      id TEXT PRIMARY KEY,
+      timestamp TEXT NOT NULL,
+      bathed INTEGER NOT NULL DEFAULT 0,
+      bandageChanged INTEGER NOT NULL DEFAULT 0,
+      notes TEXT,
+      symptoms TEXT NOT NULL,
+      entries TEXT NOT NULL
+    );
 
-      CREATE TABLE IF NOT EXISTS settings (
-        id INTEGER PRIMARY KEY CHECK (id = 1),
-        surgeryDate TEXT,
-        alertThresholdMl REAL,
-        reminderIntervalHours REAL
-      );
-    `);
+    CREATE TABLE IF NOT EXISTS settings (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      surgeryDate TEXT,
+      alertThresholdMl REAL,
+      reminderTime TEXT
+    );
+  `);
   }
 
   // Migra datos existentes de localStorage la primera vez que corre, y borra la llave legada.
@@ -86,9 +105,9 @@ export class StorageService {
       }
 
       await this.db.run(
-        `INSERT OR REPLACE INTO settings (id, surgeryDate, alertThresholdMl, reminderIntervalHours)
-         VALUES (1, ?, ?, ?)`,
-        [settings.surgeryDate ?? null, settings.alertThresholdMl ?? null, settings.reminderIntervalHours ?? null]
+        `INSERT OR REPLACE INTO settings (id, surgeryDate, alertThresholdMl, reminderTime)
+   VALUES (1, ?, ?, ?)`,
+        [settings.surgeryDate ?? null, settings.alertThresholdMl ?? null, (settings as any).reminderTime ?? null]
       );
 
       localStorage.removeItem(LEGACY_LOCALSTORAGE_KEY);
@@ -97,15 +116,38 @@ export class StorageService {
     }
   }
 
+  // ── Fallback de desarrollo (solo navegador / ng serve) ─────────────────────
+  private loadDevState(): DevState {
+    try {
+      const raw = localStorage.getItem(DEV_FALLBACK_KEY);
+      if (!raw) return { drains: [], logs: [], settings: {} };
+      return JSON.parse(raw) as DevState;
+    } catch {
+      return { drains: [], logs: [], settings: {} };
+    }
+  }
+
+  private saveDevState(state: DevState): void {
+    localStorage.setItem(DEV_FALLBACK_KEY, JSON.stringify(state));
+  }
+
   // ── Drains ───────────────────────────────────────────────────────────────
   async getDrains(): Promise<Drain[]> {
     await this.ready;
+    if (this.useDevFallback) return this.loadDevState().drains;
+
     const res = await this.db.query(`SELECT * FROM drains ORDER BY startDate ASC`);
     return (res.values ?? []) as Drain[];
   }
 
   async saveDrains(drains: Drain[]): Promise<void> {
     await this.ready;
+    if (this.useDevFallback) {
+      const state = this.loadDevState();
+      this.saveDevState({ ...state, drains });
+      return;
+    }
+
     await this.db.run(`DELETE FROM drains`);
     for (const d of drains) {
       await this.db.run(
@@ -118,12 +160,24 @@ export class StorageService {
   // ── Logs ─────────────────────────────────────────────────────────────────
   async getLogs(): Promise<CleaningLog[]> {
     await this.ready;
+    if (this.useDevFallback) {
+      return [...this.loadDevState().logs].sort(
+        (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      );
+    }
+
     const res = await this.db.query(`SELECT * FROM logs ORDER BY timestamp DESC`);
     return (res.values ?? []).map(row => this.rowToLog(row));
   }
 
   async addLog(log: CleaningLog): Promise<void> {
     await this.ready;
+    if (this.useDevFallback) {
+      const state = this.loadDevState();
+      this.saveDevState({ ...state, logs: [log, ...state.logs] });
+      return;
+    }
+
     await this.db.run(
       `INSERT INTO logs (id, timestamp, bathed, bandageChanged, notes, symptoms, entries)
        VALUES (?, ?, ?, ?, ?, ?, ?)`,
@@ -136,28 +190,42 @@ export class StorageService {
 
   async deleteLog(id: string): Promise<void> {
     await this.ready;
+    if (this.useDevFallback) {
+      const state = this.loadDevState();
+      this.saveDevState({ ...state, logs: state.logs.filter(l => l.id !== id) });
+      return;
+    }
+
     await this.db.run(`DELETE FROM logs WHERE id = ?`, [id]);
   }
 
   // ── Settings ─────────────────────────────────────────────────────────────
   async getSettings(): Promise<AppSettings> {
     await this.ready;
+    if (this.useDevFallback) return this.loadDevState().settings;
+
     const res = await this.db.query(`SELECT * FROM settings WHERE id = 1`);
     const row = res.values?.[0];
     if (!row) return {};
     return {
       surgeryDate: row.surgeryDate ?? undefined,
       alertThresholdMl: row.alertThresholdMl ?? undefined,
-      reminderIntervalHours: row.reminderIntervalHours ?? undefined,
+      reminderTime: row.reminderTime ?? undefined,
     };
   }
 
   async saveSettings(settings: AppSettings): Promise<void> {
     await this.ready;
+    if (this.useDevFallback) {
+      const state = this.loadDevState();
+      this.saveDevState({ ...state, settings });
+      return;
+    }
+
     await this.db.run(
-      `INSERT OR REPLACE INTO settings (id, surgeryDate, alertThresholdMl, reminderIntervalHours)
-       VALUES (1, ?, ?, ?)`,
-      [settings.surgeryDate ?? null, settings.alertThresholdMl ?? null, settings.reminderIntervalHours ?? null]
+      `INSERT OR REPLACE INTO settings (id, surgeryDate, alertThresholdMl, reminderTime)
+     VALUES (1, ?, ?, ?)`,
+      [settings.surgeryDate ?? null, settings.alertThresholdMl ?? null, settings.reminderTime ?? null]
     );
   }
 
@@ -169,6 +237,11 @@ export class StorageService {
   // ── Utils ────────────────────────────────────────────────────────────────
   async clear(): Promise<void> {
     await this.ready;
+    if (this.useDevFallback) {
+      localStorage.removeItem(DEV_FALLBACK_KEY);
+      return;
+    }
+
     await this.db.run(`DELETE FROM drains`);
     await this.db.run(`DELETE FROM logs`);
     await this.db.run(`DELETE FROM settings`);

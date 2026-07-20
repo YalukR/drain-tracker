@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, output } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-welcome',
-  imports: [],
+  standalone: true,
+  imports: [ButtonModule],
   templateUrl: './welcome.component.html',
-  styleUrl: './welcome.component.scss',
 })
 export class WelcomeComponent {
-
+  continueClicked = output<void>();
 }

@@ -58,7 +58,7 @@ export interface CleaningLog {
 export interface AppSettings {
   surgeryDate?: string;        // YYYY-MM-DD — para calcular día de recuperación
   alertThresholdMl?: number;   // ml por limpieza que disparan aviso al médico
-  reminderIntervalHours?: number; // cada cuántas horas recordar limpiar
+  reminderTime?: string;       // HH:mm (24h) — hora del día para recordar limpiar
 }
 
 export interface AppState {

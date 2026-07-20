@@ -32,12 +32,12 @@
     </div>
 
     <div>
-        <label class="block text-sm font-medium text-main dark:text-main-dark">Recordatorio de limpieza (horas)</label>
+        <label class="block text-sm font-medium text-main dark:text-main-dark">Recordatorio de limpieza</label>
         <p class="mb-2 mt-0.5 text-xs text-muted dark:text-muted-dark">
-            Recibirás una notificación cada cierto número de horas para recordarte limpiar.
+            Recibirás una notificación todos los días a esta hora para recordarte limpiar.
             Déjalo vacío para desactivar.
         </p>
-        <input type="number" [(ngModel)]="local.reminderIntervalHours" min="1" max="24" placeholder="ej: 8"
+        <input type="time" [(ngModel)]="local.reminderTime"
             class="w-full rounded-lg border border-border bg-surface-white px-3 py-2.5 text-sm text-main outline-none transition-colors focus:border-blue dark:border-border-dark dark:bg-surface-white-dark dark:text-main-dark dark:focus:border-blue-dark">
     </div>
 

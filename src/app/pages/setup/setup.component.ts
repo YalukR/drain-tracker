@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Component, signal, computed, inject, ChangeDetectionStrategy, OnInit, output } from '@angular/core';
 import { Router } from '@angular/router';
 import { StorageService } from '../../core/services/storage.service';
 import { NotificationService } from 'src/app/core/services/notification.service';
@@ -25,6 +25,10 @@ export class SetupComponent implements OnInit {
   loading = signal(true);
   today = new Date().toISOString().split('T')[0];
 
+  // Emite cada vez que la lista de drenajes cambia (alta o baja).
+  // El flujo de onboarding lo usa para saber cuándo el usuario ya configuró al menos 1 drenaje.
+  drainsChanged = output<Drain[]>();
+
   deleteTarget = signal<Drain | null>(null);
   deleteDialogVisible = computed(() => this.deleteTarget() !== null);
   deleteMessage = computed(() =>
@@ -46,6 +50,7 @@ export class SetupComponent implements OnInit {
     const updated = [...this.drains(), drain];
     this.drains.set(updated);
     await this.storage.saveDrains(updated);
+    this.drainsChanged.emit(updated);
   }
 
   confirmDelete(drain: Drain): void { this.deleteTarget.set(drain); }
@@ -57,6 +62,7 @@ export class SetupComponent implements OnInit {
     const updated = this.drains().filter(d => d.id !== target.id);
     this.drains.set(updated);
     await this.storage.saveDrains(updated);
+    this.drainsChanged.emit(updated);
     this.deleteTarget.set(null);
   }
 

@@ -3,8 +3,8 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./pages/setup/setup.component').then(m => m.SetupComponent),
-    data: { icon: 'pi-home', label: 'Inicio' },
+    redirectTo: 'clean',
+    pathMatch: 'full',
   },
   {
     path: 'clean',
@@ -24,8 +24,7 @@ export const routes: Routes = [
   {
     path: 'settings',
     loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent),
-    data: { icon: 'pi-cog', label: 'Configuraciones'}
-    // sin `data.icon` -> no aparece en el footer
+    data: { icon: 'pi-cog', label: 'Configuraciones' },
   },
   { path: '**', redirectTo: '' },
 ];

@@ -1,0 +1,8 @@
+@switch (step()) {
+  @case ('welcome') {
+    <app-welcome (continueClicked)="goToSetup()" />
+  }
+  @case ('setup') {
+    <app-setup (drainsChanged)="onDrainsChanged($event)" />
+  }
+}

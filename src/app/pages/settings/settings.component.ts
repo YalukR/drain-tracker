@@ -1,6 +1,5 @@
 import { Component, signal, computed, inject } from '@angular/core';
 import { ThemeComponent } from './theme/theme.component';
-import { StorageService } from '../../core/services/storage.service';
 import { SetupComponent } from '../setup/setup.component';
 
 @Component({
