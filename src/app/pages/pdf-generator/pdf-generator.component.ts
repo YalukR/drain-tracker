@@ -2,6 +2,7 @@ import { Component, inject, input, signal } from '@angular/core';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { MessageService } from 'primeng/api';
 import { StorageService } from '../../core/services/storage.service';
 import { PdfService } from '../../core/services/pdf.service';
 import { CleaningLog } from '../../core/models';
@@ -15,6 +16,7 @@ import { CleaningLog } from '../../core/models';
 export class PdfGeneratorComponent {
   private storage = inject(StorageService);
   private pdfService = inject(PdfService);
+  private messageService = inject(MessageService);
 
   logs = input.required<CleaningLog[]>();
 
@@ -31,14 +33,21 @@ export class PdfGeneratorComponent {
       } else {
         this.downloadInBrowser(blob, fileName);
       }
+    } catch (err) {
+      // Antes este error se perdía en silencio (sin catch, la promesa
+      // rechazada nunca llegaba a ningún lado visible para el usuario).
+      console.error('Error generando/compartiendo PDF:', err);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'No se pudo generar el PDF',
+        detail: err instanceof Error ? err.message : 'Ocurrió un error inesperado. Intenta de nuevo.',
+        life: 5000,
+      });
     } finally {
       this.generating.set(false);
     }
   }
 
-  // Flujo nativo (iOS/Android vía Capacitor): escribe el archivo en el
-  // almacenamiento del caché de la app y abre la hoja de compartir del SO,
-  // que es la única forma confiable de "guardar" un archivo en móvil.
   private async saveAndShareNative(base64: string, fileName: string): Promise<void> {
     const result = await Filesystem.writeFile({
       path: fileName,
@@ -54,8 +63,6 @@ export class PdfGeneratorComponent {
     });
   }
 
-  // Flujo web (navegador de escritorio): el patrón clásico de blob + <a download>
-  // sigue funcionando perfecto aquí, no hace falta tocarlo.
   private downloadInBrowser(blob: Blob, fileName: string): void {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
