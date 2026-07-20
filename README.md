@@ -5,6 +5,7 @@ A free, open-source app to log surgical drain output after mastectomy or any pro
 ![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)
 ![Non-profit](https://img.shields.io/badge/purpose-non--profit-green)
 ![Built with Angular](https://img.shields.io/badge/built%20with-Angular-red)
+![Capacitor](https://img.shields.io/badge/packaged%20with-Capacitor-119EFF)
 
 ---
 
@@ -22,7 +23,15 @@ This project is born from love, and it's meant to stay free, forever.
 - View history and stats over time
 - Export records as PDF
 - Local storage — no account required, no data leaves your device
-- Works as a Progressive Web App (PWA)
+- Packaged as a native app with [Capacitor](https://capacitorjs.com/) (Android; iOS support planned)
+
+---
+
+## Platform
+
+This is an Angular app packaged with **Capacitor** into a native mobile app — it's built and tested to run installed on your phone, not as a website.
+
+It *can* run in a regular browser (`ng serve` / a static deploy) for quick testing, but browser mode isn't the intended experience: things like native file sharing, notifications, and local storage behave differently there, and some features may not work as expected. If you want the real experience, build and install the native app (see below).
 
 ---
 
@@ -32,12 +41,13 @@ This project is born from love, and it's meant to stay free, forever.
 
 - Node.js 18+
 - Angular CLI
+- For native builds: [Android Studio](https://developer.android.com/studio) (Android SDK) — and Xcode if/when iOS support lands
 
 ```bash
 npm install -g @angular/cli
 ```
 
-### Install & run
+### Install & run in browser (for development only)
 
 ```bash
 git clone https://github.com/YalukR/drain-tracker.git
@@ -46,13 +56,25 @@ npm install
 ng serve
 ```
 
-Open your browser at `http://localhost:4200`
+Open your browser at `http://localhost:4200`. Remember: this is for quick iteration, not the intended way to use the app.
+
+### Build & run the native Android app
+
+```bash
+ng build
+npx cap sync android
+npx cap open android
+```
+
+This opens the project in Android Studio, where you can run it on an emulator or a connected device.
 
 ---
 
 ## Built with
 
 - [Angular](https://angular.io/)
+- [Capacitor](https://capacitorjs.com/)
+- [PrimeNG](https://primeng.org/) + [Tailwind CSS](https://tailwindcss.com/)
 
 ---
 
@@ -96,7 +118,15 @@ Este proyecto nació del amor, y está pensado para ser gratuito, siempre.
 - Ver historial y estadísticas
 - Exportar registros en PDF
 - Almacenamiento local — sin cuenta, sin datos en la nube
-- Funciona como Progressive Web App (PWA)
+- Empaquetada como app nativa con [Capacitor](https://capacitorjs.com/) (Android; soporte para iOS planeado)
+
+---
+
+## Plataforma
+
+Esta es una app de Angular empaquetada con **Capacitor** en una app nativa — está pensada y probada para correr instalada en tu teléfono, no como sitio web.
+
+Sí *puede* correr en un navegador normal (`ng serve` o un deploy estático) para pruebas rápidas, pero el modo navegador no es la experiencia pensada: cosas como compartir archivos nativo, notificaciones y almacenamiento local se comportan distinto ahí, y algunas funciones pueden no comportarse como se espera. Si quieres la experiencia real, compila e instala la app nativa (ver abajo).
 
 ---
 
@@ -106,12 +136,13 @@ Este proyecto nació del amor, y está pensado para ser gratuito, siempre.
 
 - Node.js 18+
 - Angular CLI
+- Para builds nativos: [Android Studio](https://developer.android.com/studio) (Android SDK) — y Xcode si/cuando llegue soporte para iOS
 
 ```bash
 npm install -g @angular/cli
 ```
 
-### Instalación
+### Instalación y ejecución en navegador (solo para desarrollo)
 
 ```bash
 git clone https://github.com/YalukR/drain-tracker.git
@@ -120,7 +151,25 @@ npm install
 ng serve
 ```
 
-Abre tu navegador en `http://localhost:4200`
+Abre tu navegador en `http://localhost:4200`. Recuerda: esto es para iterar rápido, no la forma pensada de usar la app.
+
+### Compilar y correr la app nativa de Android
+
+```bash
+ng build
+npx cap sync android
+npx cap open android
+```
+
+Esto abre el proyecto en Android Studio, donde puedes correrlo en un emulador o un dispositivo conectado.
+
+---
+
+## Construida con
+
+- [Angular](https://angular.io/)
+- [Capacitor](https://capacitorjs.com/)
+- [PrimeNG](https://primeng.org/) + [Tailwind CSS](https://tailwindcss.com/)
 
 ---
 
