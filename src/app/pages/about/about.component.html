@@ -1,0 +1,57 @@
+<div class="page anim-fade-in">
+
+    <div class="mb-7">
+        <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-blue dark:text-blue-dark">Acerca de</p>
+        <h1 class="text-2xl font-bold text-main dark:text-main-dark">Drain Tracker</h1>
+    </div>
+
+    <div
+        class="anim-fade-up delay-2 mb-6 flex flex-col gap-3 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+        <div class="flex items-center gap-2">
+            <i class="pi pi-users text-lg text-blue dark:text-blue-dark"></i>
+            <h2 class="text-base font-semibold text-main dark:text-main-dark">Ayuda a que llegue a más gente</h2>
+        </div>
+        <p class="text-sm leading-relaxed text-muted dark:text-muted-dark">
+            Si esta app te sirvió a ti o a alguien cercano, compártela. No hay presupuesto de publicidad
+            detrás de esto — solo llega a quien la necesita si alguien más la recomienda.
+        </p>
+        <button
+            class="flex items-center justify-center gap-2 rounded-lg bg-blue px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 disabled:opacity-60 dark:bg-blue-dark dark:text-surface-white-dark"
+            (click)="share()" [disabled]="sharing()">
+            <i class="pi" [class.pi-spin]="sharing()" [class.pi-spinner]="sharing()"
+                [class.pi-share-alt]="!sharing()"></i>
+            Compartir Drain Tracker
+        </button>
+    </div>
+
+    <div
+        class="anim-fade-up mb-6 flex flex-col gap-4 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+        <div class="flex items-center gap-2">
+            <i class="pi pi-heart text-lg text-blue dark:text-blue-dark"></i>
+            <h2 class="text-base font-semibold text-main dark:text-main-dark">¿Por qué existe esta app?</h2>
+        </div>
+        <p class="text-sm leading-relaxed text-muted dark:text-muted-dark">
+            Esta app nació de una necesidad real: llevar el control de drenajes post-quirúrgicos
+            (volumen, síntomas, recordatorios) sin depender de notas sueltas en papel o mensajes de texto
+            fáciles de perder justo cuando más se necesita orden y calma.
+        </p>
+    </div>
+
+    <div
+        class="anim-fade-up delay-1 mb-6 flex flex-col gap-4 rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+        <div class="flex items-center gap-2">
+            <i class="pi pi-code text-lg text-blue dark:text-blue-dark"></i>
+            <h2 class="text-base font-semibold text-main dark:text-main-dark">Gratuita y de código abierto</h2>
+        </div>
+        <p class="text-sm leading-relaxed text-muted dark:text-muted-dark">
+            Está hecha con trabajo voluntario, sin fines de lucro. Si ya estás pasando por una cirugía o
+            acompañando a alguien que lo hace, lo último que necesitas es un gasto extra. Esta app seguirá
+            siendo gratis siempre — el código es público y cualquiera puede revisarlo, mejorarlo o adaptarlo.
+        </p>
+        <a [href]="repoUrl" target="_blank" rel="noopener noreferrer"
+            class="flex items-center gap-1.5 text-sm font-medium text-blue hover:underline dark:text-blue-dark">
+            <i class="pi pi-github"></i> Ver código en GitHub
+        </a>
+    </div>
+
+</div>
