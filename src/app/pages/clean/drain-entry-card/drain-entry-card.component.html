@@ -1,5 +1,4 @@
-<div
-    class="rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
+<div class="rounded-xl border border-border bg-surface-white p-4 dark:border-border-dark dark:bg-surface-white-dark">
 
     <div class="mb-3.5 flex items-center gap-2">
         <i class="pi pi-circle-fill text-[8px] text-blue dark:text-blue-dark"></i>
@@ -38,6 +37,25 @@
                 </span>
             </button>
             }
+
+            <!-- "Otro": abre el selector de color nativo del sistema -->
+            <label [style.border-color]="entry().liquidColor === 'otro' ? customColorHex : 'transparent'"
+                class="flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border-2 bg-surface-alt px-1.5 py-2 transition-all dark:bg-surface-alt-dark">
+                <input type="color" class="sr-only" [value]="customColorHex"
+                    (input)="onCustomColorPick($any($event.target).value)">
+                @if (entry().liquidColor === 'otro') {
+                <span [style.background]="customColorHex"
+                    class="block h-5 w-5 rounded-full border border-white/15"></span>
+                } @else {
+                <span
+                    class="flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-muted dark:border-muted-dark">
+                    <i class="pi pi-palette text-[10px] text-muted dark:text-muted-dark"></i>
+                </span>
+                }
+                <span class="text-center text-[10px] leading-tight text-muted dark:text-muted-dark">
+                    Otro
+                </span>
+            </label>
         </div>
     </div>
 
@@ -49,8 +67,7 @@
         </label>
 
         @if (entry().hasClot) {
-        <div
-            class="anim-scale-in mt-2 flex flex-col gap-2.5 rounded-lg bg-surface-alt p-3 dark:bg-surface-alt-dark">
+        <div class="anim-scale-in mt-2 flex flex-col gap-2.5 rounded-lg bg-surface-alt p-3 dark:bg-surface-alt-dark">
             <div>
                 <p class="mb-1.5 text-xs text-muted dark:text-muted-dark">Tamaño</p>
                 <app-pill-select [options]="clotSizeOptions()" [value]="entry().clotSize"
@@ -64,6 +81,12 @@
         </div>
         }
     </div>
+
+    <label class="mb-2.5 flex items-center gap-2">
+        <input type="checkbox" [ngModel]="entry().hasPus" (ngModelChange)="setField('hasPus', $event)"
+            class="h-4 w-4 rounded accent-blue dark:accent-blue-dark">
+        <span class="text-sm text-main dark:text-main-dark">Hubo pus</span>
+    </label>
 
     <label class="flex items-center gap-2">
         <input type="checkbox" [ngModel]="entry().leakingOutside" (ngModelChange)="setField('leakingOutside', $event)"

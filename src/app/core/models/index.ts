@@ -4,12 +4,19 @@ export interface Drain {
   startDate: string;   // ISO date string YYYY-MM-DD
 }
 
-export type LiquidColor = 'rojo_oscuro' | 'rojo_claro' | 'rosado' | 'amarillo_claro' | 'amarillo' | 'claro';
+export type LiquidColor =
+  | 'rojo_oscuro'
+  | 'rojo_claro'
+  | 'verde'
+  | 'amarillo_claro'
+  | 'amarillo'
+  | 'claro'
+  | 'otro';
 
 export const LIQUID_COLORS: { value: LiquidColor; label: string; hex: string }[] = [
   { value: 'rojo_oscuro',    label: 'Rojo oscuro',          hex: '#7f1d1d' },
   { value: 'rojo_claro',     label: 'Rojo claro',           hex: '#ef4444' },
-  { value: 'rosado',         label: 'Rosado',               hex: '#f472b6' },
+  { value: 'verde',          label: 'Verde',                hex: '#195b23' },
   { value: 'amarillo_claro', label: 'Amarillo claro',       hex: '#fde68a' },
   { value: 'amarillo',       label: 'Amarillo',             hex: '#f59e0b' },
   { value: 'claro',          label: 'Claro / transparente', hex: '#e0f2fe' },
@@ -26,11 +33,15 @@ export interface DrainEntry {
   drainLabel: string;
   amountMl: number;
   liquidColor?: LiquidColor;
+  customLiquidColorHex?: string; // solo cuando liquidColor === 'otro'
   hasClot: boolean;
   clotSize?: ClotSize;
   clotStatus?: ClotStatus;
+  hasPus: boolean;
   leakingOutside: boolean;
 }
+
+// ... el resto del archivo (Symptoms, CleaningLog, AppSettings, AppState) se queda igual
 
 export interface Symptoms {
   redness: boolean;

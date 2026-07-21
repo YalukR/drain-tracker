@@ -1,22 +1,46 @@
 <div class="flex min-h-screen flex-col [padding-top:max(1.5rem,env(safe-area-inset-top))] [padding-left:max(1.5rem,env(safe-area-inset-left))] [padding-right:max(1.5rem,env(safe-area-inset-right))]">
 
-    <div class="flex-1">
-        @switch (step()) {
-            @case ('welcome') {
-            <app-welcome (continueClicked)="goToSetup()" />
-            }
-            @case ('setup') {
-            <app-setup [embedded]="true" (drainsChanged)="onDrainsChanged($event)" />
-            }
-        }
-    </div>
-
-    @if (step() === 'setup' && hasAtLeastOneDrain()) {
-    <div
-        class="anim-scale-in sticky bottom-0 bg-surface-alt pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-3 dark:bg-surface-white-dark">
-        <p-button styleClass="w-full" label="Continuar" icon="pi pi-arrow-right" iconPos="right"
-            (onClick)="finishOnboarding()" />
-    </div>
+  <div class="flex-1">
+    @switch (step()) {
+      @case ('welcome') {
+      <app-welcome (continueClicked)="goToSetup()" />
+      }
+      @case ('setup') {
+      <app-setup [embedded]="true" (drainsChanged)="onDrainsChanged($event)" />
+      }
+      @case ('finishing') {
+      <app-loading message="Dejando todo listo para ti..." />
+      }
     }
+  </div>
+
+  @if (step() === 'setup' && hasAtLeastOneDrain()) {
+  <div class="anim-scale-in sticky bottom-0 bg-surface-alt pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-3 dark:bg-surface-white-dark">
+    <p-button styleClass="w-full" label="Continuar" icon="pi pi-arrow-right" iconPos="right" (onClick)="askFinish()" />
+  </div>
+  }
 
 </div>
+
+<app-dialog-component
+  header="¿Ya terminaste de configurar?"
+  [visible]="confirmVisible()"
+  (visibleChange)="!$event && cancelFinish()"
+  maxWidth="380px"
+>
+  <p class="m-0 text-sm text-main dark:text-main-dark">
+    Puedes agregar más drenajes o ajustar la configuración general antes de continuar.
+    Todo lo que ya guardaste queda guardado sin importar qué elijas.
+  </p>
+
+  <div dialog-footer class="flex gap-2">
+    <button
+      type="button"
+      class="rounded-md border border-border px-4 py-2 text-sm font-medium text-main transition-colors hover:bg-surface-alt dark:border-border-dark dark:text-main-dark dark:hover:bg-surface-alt-dark"
+      (click)="cancelFinish()"
+    >
+      No, seguir configurando
+    </button>
+    <p-button label="Sí, terminé" icon="pi pi-check" (onClick)="confirmFinish()" />
+  </div>
+</app-dialog-component>

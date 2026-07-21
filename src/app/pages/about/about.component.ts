@@ -7,7 +7,7 @@ const REPO_URL = 'https://github.com/YalukR/drain-tracker';
 
 const SHARE_MESSAGE =
   `Drain Tracker: una app gratuita y de código abierto para llevar el registro de drenajes post-quirúrgicos ` +
-  `(volumen, síntomas, recordatorios). La hice de forma voluntaria para que nadie tenga que pagar por algo así ` +
+  `(volumen, síntomas, recordatorios). Nadie tenga que pagar por una app así ` +
   `en un momento donde ya se gasta bastante. Si a ti o alguien que conoces le sirve:\n\n${REPO_URL}`;
 
 @Component({
