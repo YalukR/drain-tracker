@@ -29,7 +29,7 @@ export const routes: Routes = [
   {
     path: 'about',
     loadComponent: () => import('./pages/about/about.component').then(m => m.AboutComponent),
-    data: { icon: 'pi-share-alt', label: 'Share' },
+    data: { icon: 'pi-users', label: 'Acerca' },
   },
   { path: '**', redirectTo: '' },
 ];
