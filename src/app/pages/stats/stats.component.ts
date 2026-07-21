@@ -48,7 +48,7 @@ export class StatsComponent implements OnInit {
     return diff >= 0 ? diff + 1 : null;
   });
 
-  
+
   // ── Resumen global ────────────────────────────────────────────────────
   totalLogs = computed(() => this.logs().length);
 
@@ -129,11 +129,19 @@ export class StatsComponent implements OnInit {
 
   // ── Tendencia general ─────────────────────────────────────────────────
   trend = computed(() => {
-    const ls = [...this.logs()].reverse();
+    const ls: CleaningLog[] = [...this.logs()].reverse();
     if (ls.length < 2) return 0;
     const mid = Math.floor(ls.length / 2);
-    const first = ls.slice(0, mid).reduce((s, l) => s + l.entries.reduce((es, e) => es + e.amountMl, 0), 0) / mid;
-    const second = ls.slice(mid).reduce((s, l) => s + l.entries.reduce((es, e) => es + e.amountMl, 0), 0) / (ls.length - mid);
+
+    // Extraído a una función con tipos explícitos: evita el problema de
+    // inferencia de TS en reduces anidados sobre arrays que vienen de
+    // spread + reverse() + slice() encadenados.
+    const sumMl = (logs: CleaningLog[]): number =>
+      logs.reduce((s: number, l: CleaningLog) =>
+        s + l.entries.reduce((es: number, e) => es + e.amountMl, 0), 0);
+
+    const first = sumMl(ls.slice(0, mid)) / mid;
+    const second = sumMl(ls.slice(mid)) / (ls.length - mid);
     return first - second; // positivo = bajando (bueno)
   });
 

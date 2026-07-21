@@ -26,6 +26,14 @@ const DEFAULT_SYMPTOMS = (): Symptoms => ({
   feverTemp: undefined,
 });
 
+// Estado inicial de cada entrada de drenaje al abrir la pantalla o tras guardar.
+// Centralizado aquí para no repetir el objeto en ngOnInit() y en el reset de save().
+const DEFAULT_ENTRY = (): Partial<DrainEntry> => ({
+  hasClot: false,
+  hasPus: false,
+  leakingOutside: false,
+});
+
 type ClotSize = NonNullable<DrainEntry['clotSize']>;
 type ClotStatus = NonNullable<DrainEntry['clotStatus']>;
 
@@ -117,7 +125,7 @@ export class CleanComponent implements OnInit {
     const entryInit: Record<string, Partial<DrainEntry>> = {};
     drains.forEach(d => {
       init[d.id] = 0;
-      entryInit[d.id] = { hasClot: false, leakingOutside: false };
+      entryInit[d.id] = DEFAULT_ENTRY();
     });
     this.amounts.set(init);
     this.entries.set(entryInit);
@@ -148,16 +156,21 @@ export class CleanComponent implements OnInit {
     this.saving.set(true);
 
     try {
-      const entries: DrainEntry[] = this.drains().map(d => ({
-        drainId: d.id,
-        drainLabel: d.label,
-        amountMl: this.getAmount(d.id),
-        liquidColor: this.getEntry(d.id).liquidColor,
-        hasClot: this.getEntry(d.id).hasClot ?? false,
-        clotSize: this.getEntry(d.id).clotSize,
-        clotStatus: this.getEntry(d.id).clotStatus,
-        leakingOutside: this.getEntry(d.id).leakingOutside ?? false,
-      }));
+      const entries: DrainEntry[] = this.drains().map(d => {
+        const entry = this.getEntry(d.id);
+        return {
+          drainId: d.id,
+          drainLabel: d.label,
+          amountMl: this.getAmount(d.id),
+          liquidColor: entry.liquidColor,
+          customLiquidColorHex: entry.liquidColor === 'otro' ? entry.customLiquidColorHex : undefined,
+          hasClot: entry.hasClot ?? false,
+          clotSize: entry.clotSize,
+          clotStatus: entry.clotStatus,
+          hasPus: entry.hasPus ?? false,
+          leakingOutside: entry.leakingOutside ?? false,
+        };
+      });
 
       const log: CleaningLog = {
         id: crypto.randomUUID(),
@@ -183,7 +196,7 @@ export class CleanComponent implements OnInit {
       const entryReset: Record<string, Partial<DrainEntry>> = {};
       this.drains().forEach(d => {
         reset[d.id] = 0;
-        entryReset[d.id] = { hasClot: false, leakingOutside: false };
+        entryReset[d.id] = DEFAULT_ENTRY();
       });
       this.amounts.set(reset);
       this.entries.set(entryReset);
